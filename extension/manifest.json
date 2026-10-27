@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Azeroth Survivors — Trainer",
+  "version": "1.4.0",
+  "description": "Match trainer, boss/guardian spawners, instant victory and permanent collection unlocks with verified save backups. Exact-build local trainer.",
+  "content_scripts": [{
+    "matches": ["https://wow.aethus.pl/*"],
+    "js": ["patch-data.js", "save-backup.js", "trainer.js"],
+    "run_at": "document_start",
+    "world": "MAIN"
+  }]
+}
