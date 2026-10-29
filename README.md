@@ -4,6 +4,11 @@ A standalone Windows trainer for the native **Azeroth Survivors 0.127.0
 (d1c85453)** game. This is separate from Legendary Mayhem: it adds optional cheat
 controls without Mayhem's automatic waves, events or difficulty scaling.
 
+## Fixed in 2.1.1
+
+Corrects map-transfer zone references for upgraded characters and excludes departed
+lobby records. Existing player stats remain unchanged.
+
 ## Quick start
 
 1. Download the native trainer EXE or extract its ZIP.
