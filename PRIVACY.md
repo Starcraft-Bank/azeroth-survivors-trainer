@@ -1,17 +1,25 @@
 # Privacy and local data
 
-The published source and Windows downloads contain trainer code, runtime libraries, an icon and documentation. They do not include the developer's browser profile, cookies, game saves, backups, screenshots, investigations, account credentials, private logs or local workspace files.
+The release contains trainer source, runtime libraries, a game compatibility
+profile, collection definitions, an icon and documentation. It contains no
+developer saves, screenshots, credentials, browser profile, personal settings,
+local tests, game EXE or game asset archives.
 
-The launcher creates a separate browser profile for the current Windows user at:
+The launcher starts the game selected by you and instruments that owned process.
+It does not attach to an unrelated running game or patch the game EXE on disk.
+Closing the trainer closes its game because active hooks reference trainer memory.
+The game's own normal networking and save behavior still apply. Match rewards
+and deliberate collection unlocks can persist in your native game save.
 
-```
-%LOCALAPPDATA%\Azeroth Survivors Trainer\Browser
-```
+Your chosen executable path, compatibility report and verified collection backups
+remain under `%LOCALAPPDATA%/AzerothSurvivorsTrainerNative`. Toggles start off on
+each launch. There is no telemetry, analytics, save upload or remote-control
+service. Nothing is automatically sent to GitHub.
 
-Backups and explicit exports are written locally to sibling `Backups` and `Exported Saves` folders. The launcher has buttons to open those folders. Unlock backups are also retained in the game's browser IndexedDB. These files are not uploaded by the trainer.
+Collection unlocks require a separate confirmation. The trainer closes its game,
+verifies a backup outside the live save directory, checks the original has not
+changed, and replaces the save atomically. Keep your backups. Restoring a whole
+save also restores the earlier progress recorded in that backup.
 
-The launcher opens the official game website. The website, its asset servers and co-op services receive their normal browser/network traffic; the game's own behavior and policies apply. This tool does not add analytics, telemetry, advertising, remote control or an automatic upload service. The Instructions button opens this public GitHub repository in the default browser.
-
-Permanent unlocks act on the account in the trainer's local browser profile. They first require a verified game checkpoint and independent backup. Restoring a backup replaces the destination's entire progress. Export your existing game progress yourself if you want to move it between profiles.
-
-Only share an EXE or ZIP from GitHub Releases. Do not redistribute your generated Browser, Backups or Exported Saves folders. When reporting a problem, avoid attaching saves, browser profiles or screenshots containing names unless you intend to share them.
+Only distribute the EXE or ZIP from Releases, not your local backup/settings
+folders. A decompressed artifact audit and SHA-256 checksums accompany releases.

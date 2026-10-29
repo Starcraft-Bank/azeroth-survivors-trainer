@@ -1,114 +1,122 @@
-"""Windows GUI and isolated packaged-app diagnostics."""
+"""Public native trainer launcher and verified collection workflow."""
 from pathlib import Path
-import json
-import os
-import queue
-import sys
-import tempfile
-import threading
+import argparse,json,os,queue,sys,threading,time
 import tkinter as tk
-from tkinter import messagebox
-import webbrowser
-from trainer_runtime import APP_NAME, VERSION, RESOURCE_ROOT, data_root, launch, verified_backup
+from tkinter import ttk,filedialog,messagebox
+from runtime import NativeGame,ROOT,VERSION,compatibility_check,self_test
+from settings import DEFAULTS,validate_settings
+from overlay import Overlay,theme,BG,CARD,TEXT,MUTED,GOLD
+from collection import unlock_save,game_processes
+HOME=Path(os.environ.get('LOCALAPPDATA',Path.home()))/'AzerothSurvivorsTrainerNative'
 
-
-def smoke_test(output):
-    result = {'version': VERSION, 'packaged': bool(getattr(sys, 'frozen', False))}
-    try:
-        with tempfile.TemporaryDirectory(prefix='azs-trainer-test-') as folder:
-            result['game'] = launch(lambda _: None, threading.Event(), headless=True, temporary_root=folder, smoke=True)
-            text = 'isolated-backup-integrity-check'
-            import hashlib
-            record = {'text':text, 'sha256':hashlib.sha256(text.encode()).hexdigest()}
-            saved = verified_backup(record, Path(folder)/'Backups')
-            result['backupVerified'] = saved['verified'] and (Path(folder)/'Backups'/saved['filename']).read_text() == text
-            result['success'] = result['game']['ready'] and result['backupVerified']
-    except Exception as error:
-        result['success'] = False
-        result['error'] = type(error).__name__ + ': ' + str(error)
-    Path(output).write_text(json.dumps(result,indent=2),encoding='utf-8')
-    return 0 if result['success'] else 1
-
+class App:
+ def __init__(self,window):
+  self.window=window;self.game=None;self.settings=dict(DEFAULTS);self.launching=False;self.unlocking=False;self.events=queue.Queue();self.saved={}
+  try:self.saved=json.loads((HOME/'settings.json').read_text(encoding='utf-8'))
+  except (OSError,ValueError):pass
+  window.title('Azeroth Survivors Trainer · Native '+VERSION);window.geometry('650x430');window.minsize(590,420);window.configure(bg=BG);theme(window)
+  try:window.iconbitmap(str(ROOT/'assets/wow.ico'))
+  except tk.TclError:pass
+  p=tk.Frame(window,bg=BG);p.pack(fill='both',expand=True,padx=28,pady=24)
+  tk.Label(p,text='AZEROTH SURVIVORS',bg=BG,fg=TEXT,font=('Segoe UI',21,'bold')).pack(anchor='w')
+  tk.Label(p,text='NATIVE TRAINER  /  '+VERSION,bg=BG,fg=GOLD,font=('Segoe UI',10,'bold')).pack(anchor='w',pady=(3,20))
+  tk.Label(p,text='Select your installed game',bg=BG,fg=MUTED,font=('Segoe UI',10)).pack(anchor='w')
+  beside=Path(sys.executable).parent/'AzerothSurvivors.exe';self.path=tk.StringVar(value=self.saved.get('game','') or (str(beside) if beside.exists() else ''))
+  row=ttk.Frame(p);row.pack(fill='x',pady=(7,16));self.entry=ttk.Entry(row,textvariable=self.path);self.entry.pack(side='left',fill='x',expand=True,ipady=6)
+  self.browse=ttk.Button(row,text='Browse…',command=self.choose);self.browse.pack(side='right',padx=(8,0))
+  row=ttk.Frame(p);row.pack(fill='x');self.launch=ttk.Button(row,text='Launch with trainer',command=self.open_game,style='Gold.TButton');self.launch.pack(side='left')
+  self.open_panel=ttk.Button(row,text='Open panel  [ INS ]',command=lambda:self.overlay.show(),state='disabled');self.open_panel.pack(side='left',padx=8)
+  self.stop=ttk.Button(row,text='Close game',command=self.close_game,state='disabled');self.stop.pack(side='right')
+  self.status=tk.StringVar(value='Ready. Supports the reviewed native game 0.127.0.')
+  tk.Label(p,textvariable=self.status,bg=CARD,fg=TEXT,font=('Segoe UI',10),justify='left',anchor='w',wraplength=550,padx=14,pady=14).pack(fill='x',pady=17)
+  tk.Label(p,text='Press Insert for all controls. Use windowed or borderless mode.\nAll cheats start off. Keep the trainer open while playing.',bg=BG,fg=MUTED,font=('Segoe UI',10),justify='left').pack(anchor='w')
+  row=ttk.Frame(p);row.pack(fill='x',pady=(15,0));ttk.Button(row,text='Usage guide',command=lambda:os.startfile(str(ROOT/'README.txt'))).pack(side='left')
+  self.check=ttk.Button(row,text='Check compatibility',command=self.check_compatibility);self.check.pack(side='right')
+  self.overlay=Overlay(self);window.protocol('WM_DELETE_WINDOW',self.quit);window.after(150,self.poll)
+ def choose(self):
+  value=filedialog.askopenfilename(title='Select AzerothSurvivors.exe',filetypes=[('Windows executable','*.exe')])
+  if value:self.path.set(value);self.save()
+ def save(self):
+  HOME.mkdir(parents=True,exist_ok=True);p=HOME/'settings.tmp';p.write_text(json.dumps({'game':self.path.get()},indent=2),encoding='utf-8');p.replace(HOME/'settings.json')
+ def check_compatibility(self):
+  self.check.configure(state='disabled');path=self.path.get();self.status.set('Checking the selected file without opening a game…')
+  def work():
+   try:
+    _,profile,report=compatibility_check(path,HOME/'compatibility-report.json');text=(f"Compatible: game {profile['version']} / {profile['stamp']}" if profile else report['message'])
+   except Exception as e:text=str(e)
+   self.events.put(('compatibility',text))
+  threading.Thread(target=work,daemon=True).start()
+ def open_game(self):
+  if self.game or self.launching or self.unlocking:return
+  if game_processes():messagebox.showinfo('Close the game first','Close your other Azeroth Survivors game before launching the trainer.',parent=self.window);return
+  self.settings=dict(DEFAULTS);self.overlay.sync();self.launching=True;self.launch.configure(state='disabled');self.browse.configure(state='disabled');self.entry.configure(state='disabled');self.save()
+  self.status.set('Checking compatibility and launching the game…');game=NativeGame();self.game=game;path=self.path.get()
+  def work():
+   try:game.start(path,self.settings)
+   except Exception as e:game.events.put({'kind':'launch-error','error':str(e)})
+  threading.Thread(target=work,daemon=True).start()
+ def apply_settings(self,settings):
+  if not validate_settings(settings):raise ValueError('Invalid trainer setting.')
+  if self.game and self.game.ready and not self.game.configure(settings):raise ValueError('The game rejected these settings.')
+  self.settings=dict(settings)
+ def action(self,name,args):
+  if not self.game or not self.game.ready or not self.game.action(name,args):raise ValueError('Start a solo match or host a match before using this action.')
+ def open_backups(self):
+  p=HOME/'Collection Backups';p.mkdir(parents=True,exist_ok=True);os.startfile(str(p))
+ def unlock_collection(self):
+  if self.unlocking or not self.game or not self.game.ready:return
+  game=self.game;status=game.agent.exports_sync.status();m=status.get('match')
+  if status.get('fault') or m and m['phase']!=0:messagebox.showinfo('Leave the match first','Return to the character menu before unlocking your collection.',parent=self.overlay.window);return
+  if not messagebox.askyesno('Unlock your collection permanently?',
+   'This unlocks your own collection and class progression. The trainer will close its game, create and verify a save backup, apply the unlocks and restart the game. Existing equipped choices and statistics are kept.\n\nContinue?',parent=self.overlay.window):return
+  status=game.agent.exports_sync.status();m=status.get('match')
+  if status.get('fault') or m and m['phase']!=0:return
+  self.unlocking=True;self.game=None;self.launching=True;self.overlay.hide(False);self.open_panel.configure(state='disabled');self.stop.configure(state='disabled');self.status.set('Closing the game and verifying your collection backup…');path=self.path.get()
+  def work():
+   try:
+    game.close();end=time.monotonic()+5
+    while game_processes() and time.monotonic()<end:time.sleep(.1)
+    result=unlock_save(path,backup_dir=HOME/'Collection Backups');self.events.put(('unlocked',result))
+   except Exception as e:self.events.put(('unlock-error',str(e)))
+  threading.Thread(target=work,daemon=True).start()
+ def reset_launch_ui(self):
+  self.launching=False;self.launch.configure(state='normal');self.browse.configure(state='normal');self.entry.configure(state='normal');self.stop.configure(state='disabled');self.open_panel.configure(state='disabled')
+ def poll(self):
+  try:
+   while True:
+    kind,value=self.events.get_nowait()
+    if kind=='compatibility':self.check.configure(state='normal');self.status.set(value)
+    elif kind in ('unlocked','unlock-error'):
+     self.unlocking=False;self.reset_launch_ui()
+     if kind=='unlocked':self.status.set('Collection unlocked. Restarting the game…');self.open_game();messagebox.showinfo('Collection unlocked','Verified backup:\n'+value['backup'],parent=self.window)
+     else:self.status.set('Collection unlock stopped: '+value);messagebox.showerror('Unlock stopped',value,parent=self.window)
+  except queue.Empty:pass
+  if self.game:
+   try:
+    while True:
+     item=self.game.events.get_nowait();kind=item.get('kind')
+     if kind=='ready':
+      self.launching=False;self.open_panel.configure(state='normal');self.stop.configure(state='normal');self.status.set('Trainer ready. Press Insert in the game. All cheats are off.');self.overlay.set_catalog(self.game.catalog())
+     elif kind=='status':self.overlay.update_status(item)
+     elif kind=='notice':self.overlay.feedback.set(item['text'])
+     elif kind=='fault':self.status.set('Trainer error: '+item['error'].splitlines()[0])
+     elif kind in ('closed','launch-error'):
+      self.status.set(item.get('error') or 'Game closed. Ready to launch again.');self.game=None;self.reset_launch_ui();self.overlay.hide(False);self.overlay.bridge.hwnd=None;break
+   except queue.Empty:pass
+  self.window.after(150,self.poll)
+ def close_game(self):
+  if self.game and messagebox.askyesno('Close the game?','This closes the game launched by this trainer. Finish or leave the match first.',parent=self.window):self.game.close()
+ def quit(self):
+  if self.unlocking:messagebox.showinfo('Collection update in progress','Wait for the verified save operation to finish.',parent=self.window);return
+  if self.game and not messagebox.askyesno('Close trainer and game?','Closing the trainer also closes its game. Continue?',parent=self.window):return
+  if self.game:self.game.close()
+  self.overlay.hotkey.stop();self.window.destroy()
 
 def main():
-    root = tk.Tk()
-    root.title(APP_NAME + ' ' + VERSION)
-    root.geometry('640x610')
-    root.resizable(False, False)
-    root.configure(bg='#101720')
-    root.iconbitmap(str(RESOURCE_ROOT/'assets/wow.ico'))
-    events = queue.Queue()
-    stop = threading.Event()
-    running = False
-    closing = False
-    gold, white, muted = '#e4bc69', '#eef3f8', '#b1c0cf'
-    panel = tk.Frame(root,bg='#101720',padx=26,pady=20)
-    panel.pack(fill='both',expand=True)
-    icon = tk.PhotoImage(file=str(RESOURCE_ROOT/'assets/wow.png'))
-    heading = tk.Frame(panel,bg='#101720');heading.pack(fill='x')
-    tk.Label(heading,image=icon,bg='#101720').pack(side='left',padx=(0,12))
-    tk.Label(heading,text='AZEROTH SURVIVORS',fg=gold,bg='#101720',font=('Segoe UI',19,'bold')).pack(anchor='w')
-    tk.Label(panel,text='Community trainer  '+VERSION,fg=muted,bg='#101720',font=('Segoe UI',11)).pack(anchor='w',pady=(4,14))
-    tk.Label(panel,text='1  God mode     2  Rapid skills     3  Unlimited gold\n4  Legendary rolls     5  XP boost     6  Skill area\n7  Boss enemies',justify='left',fg=white,bg='#1b2734',padx=14,pady=12,font=('Segoe UI',11)).pack(fill='x')
-    tk.Label(panel,text='Boss & guardian spawners · Instant win\nPermanent collection unlocks with verified save backups',justify='left',fg=white,bg='#101720',font=('Segoe UI',11)).pack(anchor='w',pady=12)
-    tk.Label(panel,text='Use the bottom-right panel in the game. All toggles start off.\nClick level-up cards; number keys belong to the trainer.\nEach person gets a separate local browser profile.',justify='left',fg=muted,bg='#101720',font=('Segoe UI',10)).pack(anchor='w')
-    status = tk.StringVar(value='Ready. Requires Windows 10/11, current Edge or Chrome, and internet.')
-    tk.Label(panel,textvariable=status,wraplength=580,justify='left',fg=gold,bg='#101720',font=('Segoe UI',10),height=3).pack(fill='x',pady=(14,6))
-
-    def folder(name):
-        path=data_root()/name;path.mkdir(parents=True,exist_ok=True);os.startfile(path)
-
-    def worker():
-        try:
-            launch(lambda text:events.put(('status',text)),stop)
-        except Exception as error:
-            message=str(error)
-            if 'ProcessSingleton' in message or 'profile' in message.lower() and 'lock' in message.lower():
-                message='This trainer profile is already open. Close its existing browser window, then launch again.'
-            events.put(('error',message))
-        finally:
-            events.put(('done',None))
-
-    def start():
-        nonlocal running
-        if running:return
-        running=True;stop.clear();play.configure(state='disabled');status.set('Starting the trainer…')
-        threading.Thread(target=worker,daemon=True,name='trainer-browser').start()
-
-    play=tk.Button(panel,text='Launch game with trainer',command=start,bg='#715221',fg='white',activebackground='#936c2c',activeforeground='white',font=('Segoe UI',12,'bold'),relief='flat',pady=10)
-    play.pack(fill='x',pady=(6,10))
-    row=tk.Frame(panel,bg='#101720');row.pack(fill='x')
-    for label,callback in [('Instructions',lambda:webbrowser.open('https://github.com/Starcraft-Bank/azeroth-survivors-trainer#readme')),('Backups',lambda:folder('Backups')),('Exported saves',lambda:folder('Exported Saves'))]:
-        tk.Button(row,text=label,command=callback,bg='#263544',fg=white,relief='flat',font=('Segoe UI',10),padx=12,pady=6).pack(side='left',padx=(0,8))
-    tk.Label(panel,text='Unofficial tool. Not affiliated with Blizzard or the game developer.\nClosing this launcher also closes its game browser.',justify='left',fg=muted,bg='#101720',font=('Segoe UI',9)).pack(anchor='w',pady=(14,0))
-
-    def close():
-        nonlocal closing
-        if running:
-            closing=True;stop.set();status.set('Closing the trainer browser…')
-        else:root.destroy()
-
-    def poll():
-        nonlocal running
-        try:
-            while True:
-                kind,text=events.get_nowait()
-                if kind=='status':status.set(text)
-                elif kind=='error':
-                    status.set('Could not open the trainer.');messagebox.showerror(APP_NAME,text,parent=root)
-                elif kind=='done':
-                    running=False;play.configure(state='normal')
-                    if closing:root.destroy();return
-                    status.set('Game closed. Your progress stays in this Windows account.')
-        except queue.Empty:pass
-        root.after(200,poll)
-    root.protocol('WM_DELETE_WINDOW',close)
-    root.after(200,poll)
-    if '--ui-smoke-test' in sys.argv:root.after(1500,root.destroy)
-    root.mainloop()
-
-
-if __name__=='__main__':
-    if len(sys.argv)==3 and sys.argv[1]=='--smoke-test':
-        raise SystemExit(smoke_test(sys.argv[2]))
-    main()
+ parser=argparse.ArgumentParser();parser.add_argument('--diagnose',action='store_true');parser.add_argument('--self-test',action='store_true');parser.add_argument('--game');parser.add_argument('--report');parser.add_argument('--seconds',type=int,default=15);a=parser.parse_args()
+ if a.diagnose or a.self_test:
+  if not a.game or not a.report:parser.error('--game and --report are required')
+  if a.self_test:raise SystemExit(self_test(a.game,a.report,a.seconds))
+  _,profile,_=compatibility_check(a.game,a.report);raise SystemExit(0 if profile else 2)
+ window=tk.Tk();App(window);window.mainloop()
+if __name__=='__main__':main()

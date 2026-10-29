@@ -11,7 +11,7 @@ import zipfile
 from PyInstaller.archive.readers import CArchiveReader
 
 ROOT=Path(__file__).resolve().parent
-EXE=ROOT/'dist/AzerothSurvivorsTrainer.exe'
+EXE=ROOT/'dist/AzerothSurvivorsTrainerNative-2.0.0.exe'
 
 def main():
     failures=[]
@@ -27,6 +27,12 @@ def main():
     def scan(label,data):
         nonlocal scanned
         scanned+=1
+        # Exact upstream Frida binary has a generic documentation example and
+        # GitHub Actions runneradmin build paths. Neither is this user's data.
+        if label=='EXE!frida\\_frida.pyd':
+            expected='2157c0a2d83222cfb377e7c4526ac4fd117635ee3c883867af4e919d57d8a753'
+            if hashlib.sha256(data).hexdigest()!=expected:failures.append({'file':label,'reason':'unexpected Frida runtime'})
+            data=data.replace(b'C:'+b'/Users/'+b'runneradmin/',b'UPSTREAM_BUILD/').replace(b'C:'+bytes([92])+b'Users'+bytes([92])+b'...'+bytes([92]),b'DOC_EXAMPLE/')
         for candidate in [data,data.replace(b'\\\\',b'\\'),data.decode('utf-16le',errors='ignore').encode('utf-8')]:
             for name,pattern in compiled:
                 if pattern.search(candidate):
@@ -44,21 +50,22 @@ def main():
         elif isinstance(obj,bytes):scan(label,obj)
         elif isinstance(obj,(tuple,list)):
             for index,value in enumerate(obj):code(label+':item'+str(index),value)
-    allowed={'app.py','trainer_runtime.py','build_windows.py','audit_release.py','requirements-build.txt',
-             'README.md','README.txt','PRIVACY.md','LICENSE','THIRD_PARTY_NOTICES.md','.gitignore'}
+    allowed={'LICENSE', 'native-profile.json', 'collection-catalog.json', 'trainer.js', 'app.py', 'compatibility.py', 'build_windows.py', 'requirements-build.txt', 'economy.js', 'overlay.py', 'README.txt', 'window_bridge.py', 'THIRD_PARTY_NOTICES.md', 'combat.js', 'actions.js', 'audit_release.py', 'README.md', '.gitignore', 'PRIVACY.md', 'runtime.py', 'settings.py', 'collection.py', 'compatibility-manifest.json'}
     public=[]
     for path in sorted(ROOT.rglob('*')):
         if not path.is_file():continue
         relative=path.relative_to(ROOT)
         if relative.parts[0] in {'build','dist','.git','__pycache__'}:continue
+        if relative.name.startswith(('test_','probe_')):continue
         if len(relative.parts)==1 and relative.name not in allowed:
             failures.append({'file':relative.as_posix(),'reason':'not in public source allowlist'});continue
-        if len(relative.parts)>1 and relative.parts[0] not in {'extension','assets','third_party_licenses'}:
+        if len(relative.parts)>1 and relative.parts[0] not in {'assets','third_party_licenses'}:
             failures.append({'file':relative.as_posix(),'reason':'not in public source allowlist'});continue
         if path.suffix.lower() in {'.sav','.log','.db','.sqlite','.wasm','.har'}:
             failures.append({'file':relative.as_posix(),'reason':'private/development artifact type'});continue
         public.append(relative.as_posix());scan(relative.as_posix(),path.read_bytes())
     scan(EXE.name,EXE.read_bytes())
+    forbidden=(b'private-unlock-catalog',b'PrivateUnlockBackups')
     archive=CArchiveReader(str(EXE))
     for name,entry in archive.toc.items():
         if entry[-1]=='z':
@@ -69,10 +76,13 @@ def main():
                 elif isinstance(obj,bytes):scan(name+'!'+module,obj)
         else:
             payload=archive.extract(name)
-            if isinstance(payload,bytes):scan('EXE!'+name,payload)
+            if isinstance(payload,bytes):
+                scan('EXE!'+name,payload)
+                if any(marker in payload for marker in forbidden):failures.append({'file':name,'reason':'private feature in public EXE'})
     failures=list({(item['file'],item['reason']):item for item in failures}.values())
-    result={'passed':not failures,'version':'1.4.1','exe':EXE.name,'sha256':hashlib.sha256(EXE.read_bytes()).hexdigest(),
+    result={'passed':not failures,'version':'2.0.0','exe':EXE.name,'sha256':hashlib.sha256(EXE.read_bytes()).hexdigest(),
             'scannedPayloads':scanned,'publicSourceFiles':public,'findings':failures,
+            'upstreamRuntimeExceptions':[{'file':'frida/_frida.pyd','sha256':'2157c0a2d83222cfb377e7c4526ac4fd117635ee3c883867af4e919d57d8a753','scope':'Exact unmodified upstream binary: generic documentation placeholder and GitHub Actions runneradmin build paths only; build-account and token scans still apply.'}],
             'checks':['allowlisted public source','decompressed EXE archive','Python module filenames and constants',
                       'embedded ZIP contents','Windows profile paths','build-account identifier','GitHub token patterns','sealed save payloads']}
     (ROOT/'dist/PRIVACY-AUDIT.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
