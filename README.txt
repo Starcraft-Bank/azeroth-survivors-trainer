@@ -57,6 +57,19 @@ spawns with the selected boss. Existing enemies are unchanged.
 twice. **Clear all enemies** defeats living enemies through native damage/reward
 handling. Killing a final boss, including through Kill Aura, can finish a match.
 
+## Mid-match map travel
+
+The host can move the whole party to another map without starting a new run.
+Use Insert → Session → Move party in Mayhem, or Insert → Spawners → Travel
+in the trainer. Ordinary guests do not need a modified client.
+
+Levels, learned skills, carried items, gold and elapsed match time are kept.
+Existing enemies, hazards and uncollected ground drops are cleared without
+kill rewards. Players receive five seconds of damage protection while loading.
+Close all upgrade choices before travelling, and wait between transfers.
+Completion rewards retain the original run’s map identity; travelling does not
+award extra map clears. This does not increase the game’s lobby size.
+
 ## Collection unlocks
 
 This separate trainer includes **Unlock collection** publicly. Return to the
@@ -118,4 +131,4 @@ Unofficial community project, not affiliated with Aethus or Blizzard.
 
 ## Community
 
-Join our Discord for discussion and feedback: https://discord.gg/pC4n2fvrmD
+Join the Discord for discussion and feedback: https://discord.gg/pC4n2fvrmD

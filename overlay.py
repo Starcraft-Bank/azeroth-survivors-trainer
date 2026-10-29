@@ -23,13 +23,13 @@ def theme(window):
 
 class Overlay:
  def __init__(self,app):
-  self.app=app;self.bridge=GameWindow();self.visible=False;self.last_geometry=None;self.catalog_data={};self.action_buttons=[]
+  self.app=app;self.bridge=GameWindow();self.visible=False;self.last_geometry=None;self.catalog_data={};self.action_buttons=[];self.travel_state={}
   self.window=tk.Toplevel(app.window);self.window.withdraw();self.window.overrideredirect(True);self.window.configure(bg=LINE);self.window.attributes('-topmost',True)
   self.window.bind('<Escape>',lambda e:self.hide());self.hotkey=InsertHotkey(self.bridge,self.window.winfo_id())
   body=tk.Frame(self.window,bg=BG);body.pack(fill='both',expand=True,padx=1,pady=1)
   head=tk.Frame(body,bg=BG);head.pack(fill='x',padx=25,pady=(20,5))
   tk.Label(head,text='AZEROTH  /  TRAINER',font=('Segoe UI',20,'bold'),fg=TEXT,bg=BG).pack(side='left')
-  tk.Label(head,text='NATIVE  2.0',font=('Segoe UI',9,'bold'),fg=GOLD,bg=CARD,padx=10,pady=6).pack(side='right')
+  tk.Label(head,text='NATIVE  2.1',font=('Segoe UI',9,'bold'),fg=GOLD,bg=CARD,padx=10,pady=6).pack(side='right')
   self.summary=tk.StringVar(value='Start a solo match or host a co-op lobby.')
   tk.Label(body,textvariable=self.summary,fg=MUTED,bg=BG,font=('Segoe UI',10),anchor='w').pack(fill='x',padx=26,pady=(0,13))
   metrics=tk.Frame(body,bg=BG);metrics.pack(fill='x',padx=25,pady=(0,16));self.metrics={}
@@ -60,6 +60,10 @@ class Overlay:
   p=self.pages['Spawners'];self.heading(p,'Build your own encounter','Choose a map, then a boss or guardian. These actions require the host.')
   self.zone=tk.StringVar();self.boss=tk.StringVar();self.guardian=tk.StringVar()
   self.zone_box=self.select(p,'Map',self.zone,[]);self.zone_box.bind('<<ComboboxSelected>>',lambda e:self.refresh_zone())
+  self.travel_button=ttk.Button(p,text='Travel to selected map…',command=self.travel,state='disabled');self.travel_button.pack(anchor='w',pady=(0,8))
+  self.travel_info=tk.StringVar(value='Start a solo match or host a match to transfer maps.')
+  ttk.Label(p,textvariable=self.travel_info,foreground=MUTED,wraplength=640,justify='left').pack(fill='x',pady=(0,8))
+  self.note(p,'Map travel moves the whole party and keeps player levels, items and match time. The original run still determines completion rewards.')
   self.boss_box=self.select(p,'Boss',self.boss,[]);self.boss_box.bind('<<ComboboxSelected>>',lambda e:self.select_boss())
   self.action_row(p,[('Spawn selected boss','selectedBoss',{}),('Spawn next scheduled boss','spawnNextBoss',{})])
   self.toggle(p,'bossEnemies','Boss enemies','Replace new normal enemy spawns with the selected boss.')
@@ -124,6 +128,23 @@ class Overlay:
   if self.bosses:self.boss_box.current(0);self.select_boss()
   if self.guardians:self.guardian_box.current(0)
   else:self.guardian.set('No guardian entries')
+  self.refresh_travel()
+ def update_travel(self,state):
+  self.travel_state=dict(state or {});self.refresh_travel()
+ def refresh_travel(self):
+  state=self.travel_state;catalog=state.get('catalog') or [];selected=next((z for z in catalog if z['name']==self.zone.get()),None)
+  current=state.get('currentZone');same=bool(selected and current in (selected['key'],selected['id']))
+  ready=bool(state.get('supported') and state.get('canTravel') and not state.get('busy') and selected and not same)
+  self.travel_button.configure(state='normal' if ready else 'disabled')
+  names=lambda value:next((z['name'] for z in catalog if value in (z['key'],z['id'])),str(value or '—'))
+  reason='Moving the party…' if state.get('busy') else 'Choose another map.' if same and state.get('canTravel') else state.get('reason') or ('Ready to move the party.' if ready else 'Map transfer is unavailable in this state.')
+  self.travel_info.set(f'Current: {names(current)} · Original: {names(state.get("originZone"))}\n{reason}')
+ def travel(self):
+  selected=next((z for z in self.travel_state.get('catalog',[]) if z['name']==self.zone.get()),None)
+  if not selected or not self.travel_state.get('canTravel') or self.travel_state.get('busy'):return
+  if not messagebox.askyesno('Move the whole party?',f'Move every player in this match to {selected["name"]}?\n\nPlayer levels, carried items, gold and match time are kept. Existing enemies, hazards and uncollected drops are cleared. Completion rewards remain tied to the original run.',parent=self.window):return
+  try:self.app.travel(selected['key']);self.feedback.set('Party map transfer queued.');self.travel_button.configure(state='disabled')
+  except Exception as e:self.feedback.set(str(e))
  def select_boss(self):
   i=self.boss_box.current()
   if i>=0 and i<len(self.bosses):settings=dict(self.app.settings);settings['bossId']=self.bosses[i]['id'];self.commit(settings)
@@ -143,6 +164,9 @@ class Overlay:
   except Exception as e:self.feedback.set(str(e))
  def update_status(self,item):
   m=item.get('match');active=bool(m and m['phase'] in (1,2));fault=item.get('fault')
+  travel=dict(item.get('travel') or {})
+  if fault:travel.update(canTravel=False,reason='Resolve the trainer error before transferring maps.')
+  self.update_travel(travel)
   if fault:
    # A native fault automatically disables its hooks; reflect that reset rather
    # than continuing to display enabled controls from the last user update.

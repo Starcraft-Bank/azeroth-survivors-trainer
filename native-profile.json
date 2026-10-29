@@ -1025,5 +1025,15 @@
         "guardianRehealthIndex": "286d9dcd7a52ef930c6202e4eb84fdb74839dfef60473d73e25a0bd99f808d9f"
       }
     }
+  },
+  "mapTravelFunctions": {
+    "loadWorld": 96054784,
+    "worldDropSlow": 95952656,
+    "createHero": 96575344,
+    "sendLocalPacket": 96151392,
+    "encodeCoop": 97602192,
+    "flushPendingCoop": 96017456,
+    "buildSnapshot": 97608304,
+    "playerDamage": 96543536
   }
 }

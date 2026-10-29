@@ -61,6 +61,11 @@ class App:
   self.settings=dict(settings)
  def action(self,name,args):
   if not self.game or not self.game.ready or not self.game.action(name,args):raise ValueError('Start a solo match or host a match before using this action.')
+ def travel(self,zone):
+  if not self.game or not self.game.ready:raise ValueError('Start a solo match or host a match first.')
+  result=self.game.travel(zone)
+  if not result or isinstance(result,dict) and result.get('ok') is False:
+   raise ValueError((result.get('error') or result.get('reason') or 'Map transfer is unavailable.') if isinstance(result,dict) else 'Map transfer is unavailable.')
  def open_backups(self):
   p=HOME/'Collection Backups';p.mkdir(parents=True,exist_ok=True);os.startfile(str(p))
  def unlock_collection(self):
@@ -101,7 +106,7 @@ class App:
      elif kind=='notice':self.overlay.feedback.set(item['text'])
      elif kind=='fault':self.status.set('Trainer error: '+item['error'].splitlines()[0])
      elif kind in ('closed','launch-error'):
-      self.status.set(item.get('error') or 'Game closed. Ready to launch again.');self.game=None;self.reset_launch_ui();self.overlay.hide(False);self.overlay.bridge.hwnd=None;break
+      self.status.set(item.get('error') or 'Game closed. Ready to launch again.');self.game=None;self.reset_launch_ui();self.overlay.update_travel({});self.overlay.hide(False);self.overlay.bridge.hwnd=None;break
    except queue.Empty:pass
   self.window.after(150,self.poll)
  def close_game(self):

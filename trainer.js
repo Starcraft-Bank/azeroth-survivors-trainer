@@ -16,12 +16,13 @@
  }}
  function valid(v){return v&&Object.keys(v).length===Object.keys(schema).length&&Object.entries(schema).every(([k,[d,lo,hi]])=>typeof d==='boolean'?typeof v[k]==='boolean':typeof v[k]==='number'&&Number.isFinite(v[k])&&v[k]>=lo&&v[k]<=hi&&(k!=='bossId'||Number.isInteger(v[k])));}
  const api={profile,base,F,E,getSettings:()=>settings,getRun:()=>run,guarded,notice};
+ const travel=AZS_MAP_TRAVEL.setup({profile,base,F,getRun:()=>run,getGame:()=>game,notice,externalDamageGuard:true});
  modules={combat:AZS_TRAINER_COMBAT.setup(api),economy:AZS_TRAINER_ECONOMY.setup(api),actions:AZS_TRAINER_ACTIONS.setup(api)};
  function match(){if(!run||run.isNull())return null;
   return {phase:run.add(F(0xca2)).readU8(),worldPhase:run.add(F(0xca3)).readU8(),coop:!!run.add(F(0xc9d)).readU8(),
    clock:run.add(F(0xbf4)).readFloat(),hp:run.add(F(0x508)).readFloat(),maxHp:run.add(F(0x4a0)).readFloat(),
    gold:run.add(F(0x510)).readU32(),level:run.add(F(0x500)).readU32(),endless:!!run.add(F(0xc90)).readU8()};}
- function status(){return {ready:!fault,fault,settings:{...settings},match:guarded(match),notice:lastNotice,
+ function status(){return {ready:!fault,fault,settings:{...settings},match:guarded(match),notice:lastNotice,travel:travel.status(),
   results:results.slice(-10),modules:Object.fromEntries(Object.entries(modules).map(([k,m])=>[k,m.status?.()??{}]))};}
  function drain(){
   for(const item of queue.splice(0,4)){
@@ -31,19 +32,20 @@
   }
  }
  Interceptor.attach(base.add(profile.functions.gameUpdate),{onEnter(a){game=a[0];},onLeave(){guarded(()=>{
-  run=game.add(16).readU64().toString()==='2'?null:game.add(16);
+  run=game.add(16).readU64().toString()==='2'?null:game.add(16);if(!run)travel.reset(true);
   // Native level-up menus may pause runTick. Refresh cached economy UI and
   // service explicit actions on this same game thread while choosing a card.
   if(run&&!fault&&run.add(F(0xca2)).readU8()===2){modules.economy.tick?.(run);drain();}
   if(Date.now()-lastReport>300){lastReport=Date.now();send({kind:'status',...status()});}
  });}});
  Interceptor.attach(base.add(profile.functions.runTick),{onEnter(a){guarded(()=>{
-  run=a[0];if(fault)return;const phase=run.add(F(0xca2)).readU8();
+  run=a[0];if(fault)return;travel.tick(run);const phase=run.add(F(0xca2)).readU8();
   if(phase!==1&&phase!==2){if(queue.length){queue=[];notice('Start a live match before using match actions.');}return;}
+  if(travel.status().busy)return;
   for(const module of Object.values(modules))module.tick?.(run);
   drain();
  });}});
- rpc.exports={status,catalog:()=>modules.actions.catalog(),configure(v){if(!valid(v))return false;
+ rpc.exports={status,travel(zone){if(fault)return false;return travel.request(zone);},catalog:()=>modules.actions.catalog(),configure(v){if(!valid(v))return false;
    if(fault&&Object.keys(defaults).some(k=>k!=='bossId'&&v[k]!==defaults[k]))return false;
    settings={...v};return true;},
   action(name,args={}){if(typeof name!=='string'||!args||typeof args!=='object'||Array.isArray(args)||queue.length>=8||fault)return false;

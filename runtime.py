@@ -4,7 +4,7 @@ import ctypes,hashlib,json,os,queue,sys,threading,time
 from ctypes import wintypes
 
 ROOT=Path(getattr(sys,'_MEIPASS',Path(__file__).resolve().parent))
-VERSION='2.0.0'
+VERSION='2.1.0'
 from settings import DEFAULTS, SCHEMA, validate_settings
 
 
@@ -74,7 +74,7 @@ class NativeGame:
                 self.session=self.device.attach(self.pid)
                 self.session.on('detached',self._detached)
                 self.events.put({'kind':'compatible','version':profile['version'],'stamp':profile['stamp']})
-                source='globalThis.AZS_SCHEMA='+json.dumps(SCHEMA)+';\n'+'globalThis.AZS_PROFILE='+json.dumps(profile)+';\nglobalThis.AZS_SETTINGS='+json.dumps(settings)+';\n'+'\n'.join((ROOT/name).read_text(encoding='utf-8') for name in ['combat.js','economy.js','actions.js','trainer.js'])
+                source='globalThis.AZS_SCHEMA='+json.dumps(SCHEMA)+';\n'+'globalThis.AZS_PROFILE='+json.dumps(profile)+';\nglobalThis.AZS_SETTINGS='+json.dumps(settings)+';\n'+'\n'.join((ROOT/name).read_text(encoding='utf-8') for name in ['combat.js','economy.js','actions.js','map_travel.js','trainer.js'])
                 self.agent=self.session.create_script(source,name='AzerothSurvivorsTrainerNative')
                 self.agent.on('message',self._message);self.agent.load()
                 if not self.ready:raise RuntimeError('The native mode did not initialize; the game was not resumed.')
@@ -104,6 +104,7 @@ class NativeGame:
         return self.agent.exports_sync.configure(settings)
 
     def action(self,name,args=None):return self.agent.exports_sync.action(name,args or {})
+    def travel(self,zone):return self.agent.exports_sync.travel(zone)
     def catalog(self):return self.agent.exports_sync.catalog()
 
     def close(self):
