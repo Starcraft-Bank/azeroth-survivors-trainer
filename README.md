@@ -115,3 +115,7 @@ game separately between sessions and use a matching trainer release.
 The browser trainer remains in older releases. Source is MIT licensed; the game
 and its assets are not included. See PRIVACY.md and THIRD_PARTY_NOTICES.md.
 Unofficial community project, not affiliated with Aethus or Blizzard.
+
+## Community
+
+Join our Discord for discussion and feedback: https://discord.gg/pC4n2fvrmD
