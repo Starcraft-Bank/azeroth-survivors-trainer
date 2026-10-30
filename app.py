@@ -27,7 +27,7 @@ class App:
   row=ttk.Frame(p);row.pack(fill='x');self.launch=ttk.Button(row,text='Launch with trainer',command=self.open_game,style='Gold.TButton');self.launch.pack(side='left')
   self.open_panel=ttk.Button(row,text='Open panel  [ INS ]',command=lambda:self.overlay.show(),state='disabled');self.open_panel.pack(side='left',padx=8)
   self.stop=ttk.Button(row,text='Close game',command=self.close_game,state='disabled');self.stop.pack(side='right')
-  self.status=tk.StringVar(value='Ready. Supports the reviewed native game 0.130.0.')
+  self.status=tk.StringVar(value='Ready. Build identity is advisory; required hook locations are checked.')
   tk.Label(p,textvariable=self.status,bg=CARD,fg=TEXT,font=('Segoe UI',10),justify='left',anchor='w',wraplength=550,padx=14,pady=14).pack(fill='x',pady=17)
   tk.Label(p,text='Press Insert for all controls. Use windowed or borderless mode.\nAll cheats start off. Keep the trainer open while playing.',bg=BG,fg=MUTED,font=('Segoe UI',10),justify='left').pack(anchor='w')
   row=ttk.Frame(p);row.pack(fill='x',pady=(15,0));ttk.Button(row,text='Usage guide',command=lambda:os.startfile(str(ROOT/'README.txt'))).pack(side='left')
@@ -42,7 +42,7 @@ class App:
   self.check.configure(state='disabled');path=self.path.get();self.status.set('Checking the selected file without opening a game…')
   def work():
    try:
-    _,profile,report=compatibility_check(path,HOME/'compatibility-report.json');text=(f"Compatible: game {profile['version']} / {profile['stamp']}" if profile else report['message'])
+    _,profile,report=compatibility_check(path,HOME/'compatibility-report.json');text=report['message']
    except Exception as e:text=str(e)
    self.events.put(('compatibility',text))
   threading.Thread(target=work,daemon=True).start()
@@ -70,7 +70,10 @@ class App:
   p=HOME/'Collection Backups';p.mkdir(parents=True,exist_ok=True);os.startfile(str(p))
  def unlock_collection(self):
   if self.unlocking or not self.game or not self.game.ready:return
-  game=self.game;status=game.agent.exports_sync.status();m=status.get('match')
+  game=self.game
+  if game.unverified:
+   messagebox.showinfo('Collection unavailable','This build can run, but its permanent collection format is unverified. Unlock All requires a supported save catalog.',parent=self.overlay.window);return
+  status=game.agent.exports_sync.status();m=status.get('match')
   if status.get('fault') or m and m['phase']!=0:messagebox.showinfo('Leave the match first','Return to the character menu before unlocking your collection.',parent=self.overlay.window);return
   if not messagebox.askyesno('Unlock your collection permanently?',
    'This unlocks your own collection and class progression. The trainer will close its game, create and verify a save backup, apply the unlocks and restart the game. Existing equipped choices and statistics are kept.\n\nContinue?',parent=self.overlay.window):return
@@ -101,7 +104,7 @@ class App:
     while True:
      item=self.game.events.get_nowait();kind=item.get('kind')
      if kind=='ready':
-      self.launching=False;self.open_panel.configure(state='normal');self.stop.configure(state='normal');self.status.set('Trainer ready. Press Insert in the game. All cheats are off.');self.overlay.set_catalog(self.game.catalog())
+      self.launching=False;self.open_panel.configure(state='normal');self.stop.configure(state='normal');self.status.set(('UNVERIFIED BUILD. ' if self.game.unverified else '')+'Trainer ready. Press Insert. All cheats are off.');self.overlay.set_catalog(self.game.catalog())
      elif kind=='status':self.overlay.update_status(item)
      elif kind=='notice':self.overlay.feedback.set(item['text'])
      elif kind=='fault':self.status.set('Trainer error: '+item['error'].splitlines()[0])

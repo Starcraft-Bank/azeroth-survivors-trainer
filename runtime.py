@@ -4,7 +4,7 @@ import ctypes,hashlib,json,os,queue,sys,threading,time
 from ctypes import wintypes
 
 ROOT=Path(getattr(sys,'_MEIPASS',Path(__file__).resolve().parent))
-VERSION='2.1.2'
+VERSION='2.1.3'
 from settings import DEFAULTS, SCHEMA, validate_settings
 
 
@@ -54,11 +54,12 @@ def check_game(path):
 class NativeGame:
     def __init__(self):
         self.events=queue.Queue();self.device=None;self.session=None;self.agent=None;self.pid=None;self.owned_process=None
-        self.ready=False;self.closed=threading.Event();self.lock=threading.RLock();self.latest=None
+        self.unverified=False;self.ready=False;self.closed=threading.Event();self.lock=threading.RLock();self.latest=None
 
     def start(self,path,settings,environment=None):
         if not validate_settings(settings):raise ValueError('Invalid pre-match settings.')
         exe,profile=check_game(path)
+        self.unverified=bool(profile.get("compatibilityUnverified"))
         import frida
         with self.lock:
             if self.closed.is_set():raise RuntimeError('The launcher closed before the game started.')
@@ -73,7 +74,7 @@ class NativeGame:
                 self.owned_process=OwnedProcess(self.pid)
                 self.session=self.device.attach(self.pid)
                 self.session.on('detached',self._detached)
-                self.events.put({'kind':'compatible','version':profile['version'],'stamp':profile['stamp']})
+                self.events.put({'kind':'compatible','version':profile['version'],'stamp':profile['stamp'],'verified':not self.unverified})
                 source='globalThis.AZS_SCHEMA='+json.dumps(SCHEMA)+';\n'+'globalThis.AZS_PROFILE='+json.dumps(profile)+';\nglobalThis.AZS_SETTINGS='+json.dumps(settings)+';\n'+'\n'.join((ROOT/name).read_text(encoding='utf-8') for name in ['combat.js','economy.js','actions.js','map_travel.js','trainer.js'])
                 self.agent=self.session.create_script(source,name='AzerothSurvivorsTrainerNative')
                 self.agent.on('message',self._message);self.agent.load()
