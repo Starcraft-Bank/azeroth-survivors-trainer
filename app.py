@@ -27,7 +27,7 @@ class App:
   row=ttk.Frame(p);row.pack(fill='x');self.launch=ttk.Button(row,text='Launch with trainer',command=self.open_game,style='Gold.TButton');self.launch.pack(side='left')
   self.open_panel=ttk.Button(row,text='Open panel  [ INS ]',command=lambda:self.overlay.show(),state='disabled');self.open_panel.pack(side='left',padx=8)
   self.stop=ttk.Button(row,text='Close game',command=self.close_game,state='disabled');self.stop.pack(side='right')
-  self.status=tk.StringVar(value='Ready. Supports the reviewed native game 0.127.0.')
+  self.status=tk.StringVar(value='Ready. Supports the reviewed native game 0.130.0.')
   tk.Label(p,textvariable=self.status,bg=CARD,fg=TEXT,font=('Segoe UI',10),justify='left',anchor='w',wraplength=550,padx=14,pady=14).pack(fill='x',pady=17)
   tk.Label(p,text='Press Insert for all controls. Use windowed or borderless mode.\nAll cheats start off. Keep the trainer open while playing.',bg=BG,fg=MUTED,font=('Segoe UI',10),justify='left').pack(anchor='w')
   row=ttk.Frame(p);row.pack(fill='x',pady=(15,0));ttk.Button(row,text='Usage guide',command=lambda:os.startfile(str(ROOT/'README.txt'))).pack(side='left')

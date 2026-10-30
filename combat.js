@@ -14,9 +14,10 @@
   }
   // This entry handles both enemy attacks and damaging ground hazards. Skipping
   // it prevents death in the same call, including damage larger than max HP.
-  replace('playerDamage','void',['pointer','float','uint64','uint32'],(original,r,damage,attacker,flags)=>{
+  const damageTypes=['pointer','float','uint64','uint32',...(p.playerDamageExtraArgs===2?['uint32','uint32']:[])];
+  replace('playerDamage','void',damageTypes,(original,r,damage,attacker,flags,...source)=>{
    counters.incomingCalls++;if(sameRun(r)&&(getSettings().god||globalThis.AZS_MAP_TRAVEL_PROTECTED?.(r))&&damage>0){counters.blockedHits++;return;}
-   original(r,damage,attacker,flags);
+   original(r,damage,attacker,flags,...source);
   });
   // Preserve the native dodge, immunity, kill-credit and reward paths. Large
   // finite damage avoids NaN/Infinity in floating-point damage arithmetic.

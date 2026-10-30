@@ -1,10 +1,15 @@
 # Azeroth Survivors Trainer — native edition
 
-A standalone Windows trainer for the native **Azeroth Survivors 0.127.0
-(d1c85453)** game. This is separate from Legendary Mayhem: it adds optional cheat
+A standalone Windows trainer for the native **Azeroth Survivors 0.130.0
+(e7d9dd47)** game. This is separate from Legendary Mayhem: it adds optional cheat
 controls without Mayhem's automatic waves, events or difficulty scaling.
 
-## Fixed in 2.1.1
+## Updated in 2.1.2
+
+Game Compatibility - Updated for native 0.130.0.
+Damage Hooks - Preserve the new Death Recap damage-source arguments.
+
+## Included map-travel fix
 
 Corrects map-transfer zone references for upgraded characters and excludes departed
 lobby records. Existing player stats remain unchanged.
@@ -114,7 +119,7 @@ affect party members; do not assume a guest trainer can control the host.
 
 ## Validation and limits
 
-The reviewed 0.127.0 build was tested in isolated native matches: combat toggles,
+The reviewed 0.130.0 build was tested in isolated native matches: combat toggles,
 stat restoration, real reroll/banish UI actions, chest purchases, Legendary
 rewards, all 12 maps’ guardian definitions, native pickups and Instant Win.
 The new trainer has not completed a full co-op test for every toggle or class.
