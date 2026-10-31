@@ -13,7 +13,7 @@ Unknown game builds use a best-effort bundled layout. This removes startup block
 
 # Azeroth Survivors Trainer — native edition
 
-A standalone Windows trainer for the native **Azeroth Survivors** game, including the tested **0.130.1** hotfix. This is separate from Legendary Mayhem: it adds optional cheat
+A standalone Windows trainer for the native **Azeroth Survivors** game, updated for **0.131.0**. This is separate from Legendary Mayhem: it adds optional cheat
 controls without Mayhem's automatic waves, events or difficulty scaling.
 
 ## Launch and menu behavior
@@ -136,7 +136,7 @@ The reviewed 0.130.0 build was tested in isolated native matches: combat toggles
 stat restoration, real reroll/banish UI actions, chest purchases, Legendary
 rewards, all 12 maps’ guardian definitions, native pickups and Instant Win.
 The new trainer has not completed a full co-op test for every toggle or class.
-It does not increase the game’s lobby limit. The reorganized Insert overlay was checked locally. The 0.130.1 adapter passed native launch, Godmode, movement-speed and gold checks; earlier adapters remain available.
+It does not increase the game’s lobby limit. The reorganized Insert overlay was checked locally. This release targets game 0.131.0. See its release notes for the checks completed on that build; earlier adapters remain available.
 
 ## Compatibility, source and updates
 

@@ -1,38 +1,38 @@
 {
   "schema": 1,
-  "version": "0.130.0",
+  "version": "0.131.0",
   "stamp": "e7d9dd47",
   "exeName": "AzerothSurvivors.exe",
-  "sha256": "8829953418a4d996cc5287f0e9fad25407ca30ceb64d105a4f57833caef78016",
-  "bytes": 147168256,
+  "sha256": "5dd6819d836748ccf809ab76fe6509c9ee793e087939b5d036c430d835a14e63",
+  "bytes": 147231744,
   "functions": {
-    "gameUpdate": 96335264,
-    "runTick": 97197488,
-    "bossSpawn": 97322896,
-    "mobSpawn": 97242224,
-    "entitySpawn": 97236080,
-    "hazardCast": 97410384,
-    "hazardUpdate": 97369008,
-    "offer": 97623856,
-    "card": 97643136,
-    "enemyAi": 97279040,
-    "enemyDamage": 97246480,
-    "keepFighting": 97090784,
-    "banner": 95705984,
-    "packetMessage": 95681376,
-    "reserveMessages": 101445232,
+    "gameUpdate": 96130352,
+    "runTick": 97235936,
+    "bossSpawn": 97361344,
+    "mobSpawn": 97280672,
+    "entitySpawn": 97274528,
+    "hazardCast": 97448832,
+    "hazardUpdate": 97407456,
+    "offer": 97662304,
+    "card": 97681584,
+    "enemyAi": 97317488,
+    "enemyDamage": 97284928,
+    "keepFighting": 97129232,
+    "banner": 95747552,
+    "packetMessage": 95722944,
+    "reserveMessages": 101472864,
     "allocate": 8640,
-    "partySwap": 97359328,
-    "emitEvent": 97222416,
+    "partySwap": 97397776,
+    "emitEvent": 97260864,
     "deallocate": 8656,
-    "flushMessages": 97078352,
-    "reserveUi": 101444448,
-    "setField": 95693280,
-    "writeGuid": 95769648,
-    "writeFields": 95694432
+    "flushMessages": 97116800,
+    "reserveUi": 101472080,
+    "setField": 95734848,
+    "writeGuid": 95811216,
+    "writeFields": 95736000
   },
   "functionHeadSha256": {
-    "gameUpdate": "22859cdbe0b3aeecc7ae87cd6b49ea199ca23c6f4f6e86682046597fa1b77648",
+    "gameUpdate": "f62c70923df8d65aef18b79db7809f5c5fc5b821dc268b74ed955cdc73577b70",
     "runTick": "4a0c05d2c9b11d48031bbe8a8afd2cf0a9a04580e7f54a17da92efd9febb6f50",
     "bossSpawn": "567e07b20b12e00de45c6295ebc9e33346e080a2e89236029cbfb6da8fe9ad8f",
     "mobSpawn": "1886f4f677b89ae706216917126621a76bc5cf8287c038abc4d04812ea0a3348",
@@ -47,22 +47,22 @@
     "banner": "818f19c80997870758018f2c856f03b03900acaf2bdece9b04e588ca461db7a1",
     "packetMessage": "d5b9e7a616d4a6b5ee3a66a3c322b41717637c332fdf7ddfde9859c129e9119d",
     "reserveMessages": "46bd1763478608c57ac18e22ccc07376672276bf0beea17b18ec40182708c96d",
-    "allocate": "a2a9497f0938b0f744bd533cd9c8af4e947c58aac4f03f7092dbcb4667baefce",
+    "allocate": "4e6a874298cf96414a6ab9cc222ed225fbbb11e251de0166bddc1b0596a8953d",
     "partySwap": "b649a934b2ec804b30fa87e63f4cb9e4d9c84eeea7f39977563cc7ccdfb75174",
     "emitEvent": "4b886e0352cd25b934bd6589dea23b8a3d5fa74b3177c5798d9acd45678a2b07",
-    "deallocate": "61f658e1e1b4a52d0bce24041fea06f2d750a7728f8bfab8098baf11595b4140",
+    "deallocate": "84832545788e32d50887b75c71d6dbb401a53cdb4c7b63b0b25545ce54f0014c",
     "flushMessages": "aa34ab0cafb0c32a2cda096cfae0c651266f577e139f5647b1e2f896b5df6f41",
     "reserveUi": "46bd1763478608c57ac18e22ccc07376672276bf0beea17b18ec40182708c96d",
     "setField": "166e183424d34186de92d366583a6cad1d37def393681f71a642c9be74598633",
-    "writeGuid": "e8bd6824c278dfe883b464fb97836fed1621c32a8591d1d217c3481c601abd12",
+    "writeGuid": "e080b55d93185a072ec447d3c35bcfa9b6c3c1362bbf60af8188ac85149de51b",
     "writeFields": "5904d6f35e436aed59f69f08cfb305a6c621b82250f04c1bfa06f27ae996fae0"
   },
-  "zoneTable": 118061032,
+  "zoneTable": 118107656,
   "zoneCount": 12,
   "zoneStride": 240,
   "bossStride": 104,
   "abilityStride": 56,
-  "hazardDefinition": 118014264,
+  "hazardDefinition": 118060888,
   "enemyStride": 504,
   "hazardStride": 128,
   "partyStride": 2616,
@@ -137,14 +137,14 @@
     "0x1dc": 500
   },
   "bossSpawnHpArgument": true,
-  "validation": "static-reviewed-isolated-native-and-coop-runtime-tested",
+  "validation": "native-tested",
   "runtimeTested": true,
   "rewards": {
-    "spawnLoot": 97273728,
-    "reroll": 97681152,
-    "jewelryBuilder": 97655392,
-    "jewelryLoop": 97656272,
-    "jewelryTable": 121619176,
+    "spawnLoot": 97312176,
+    "reroll": 97719600,
+    "jewelryBuilder": 97693840,
+    "jewelryLoop": 97694720,
+    "jewelryTable": 125272456,
     "jewelryStride": 72,
     "jewelryCount": 23,
     "jewelryStatOffset": 68,
@@ -154,31 +154,31 @@
     "lootStride": 72,
     "costSites": [
       {
-        "rva": 97010282,
+        "rva": 97048730,
         "costRegister": "rcx",
         "overflowRegister": "r9",
         "headSha256": "6bf44f152deac70f81b92f4793f3a75b0e072da18ab9d9e273bb9ac9f21069c6"
       },
       {
-        "rva": 97159400,
+        "rva": 97197848,
         "costRegister": "rcx",
         "overflowRegister": "r9",
         "headSha256": "dc4efd97c6bd54e8373b7e76f40099e7b74d62064204a14f52d8394c191691b9"
       },
       {
-        "rva": 97633524,
+        "rva": 97671972,
         "costRegister": "rcx",
         "overflowRegister": "r9",
         "headSha256": "10f3be7369e659fa16d63b1d45105c7c294ccd50215c651a04b5a74467fa9177"
       },
       {
-        "rva": 97638127,
+        "rva": 97676575,
         "costRegister": "rcx",
         "overflowRegister": "r9",
-        "headSha256": "395fea72d0765717893adbf057bcbe8eb8f10a75845916f1f3042910874705d1"
+        "headSha256": "ef47c8001f7d018d6fab372d77b30dcb162c5b6e74be40f5c07386031d67fbba"
       },
       {
-        "rva": 97681379,
+        "rva": 97719827,
         "costRegister": "r8",
         "overflowRegister": "r10",
         "headSha256": "a76649a50662751e1d1636c68949847106900de5ee7cace24455b91bf254c7cf"
@@ -188,42 +188,42 @@
       "spawnLoot": "fda81edf5056cd85d4a0e2d9b3927491b302b42dff4e581b11368ec85e0e5dc7",
       "reroll": "4cd19bb5c276f34a4eaecadb48ce3edec9f4317c53c05c05bd784b9334fe3def",
       "jewelryBuilder": "042722957045f15081646e3717fcd6e92ee90e86f4ed964610521d3e9db97128",
-      "jewelryLoop": "d4da71c25efe93cdff34cc50c3888bd2ddff7a38b490147e944f542e30eb050f"
+      "jewelryLoop": "00846715278ede257c5f507192d1c4ccf89e2d002a8a7e0ff5e67fd008ba4d64"
     }
   },
   "goldAwards": [
     {
-      "rva": 96690623,
+      "rva": 96715023,
       "runRegister": "rsi",
       "amountRegister": "rax",
       "headSha256": "c4a2f5aca7cf0888993f701ff5e33b5b6b5229bd7726e79d5e794159f7bac966"
     },
     {
-      "rva": 97043099,
+      "rva": 97081547,
       "runRegister": "r13",
       "amountRegister": "rcx",
       "headSha256": "899a92a1e9bb9f5705f258b4f8965b854ed4b12740387100ab601cec266c0036"
     },
     {
-      "rva": 97231176,
+      "rva": 97269624,
       "runRegister": "rsi",
       "amountRegister": "rcx",
       "headSha256": "5c614840760fb853823fe3958c2e65634afe36884ba55f6ae46c51a07934bb9e"
     }
   ],
   "permanentRewards": {
-    "bossReward": 97234240,
+    "bossReward": 97272688,
     "headSha256": "31b825124941cc53cb9d6bd09b1f72addd8b1de8bc7fe93d1f75d7f59e12bc67"
   },
   "mapTravelFunctions": {
-    "loadWorld": 96757632,
-    "worldDropSlow": 95832224,
-    "createHero": 97146864,
-    "sendLocalPacket": 96334608,
-    "encodeCoop": 97899296,
-    "flushPendingCoop": 95911904,
-    "buildSnapshot": 97907104,
-    "playerDamage": 97136336
+    "loadWorld": 96584240,
+    "worldDropSlow": 95870880,
+    "createHero": 97185312,
+    "sendLocalPacket": 96129696,
+    "encodeCoop": 97937744,
+    "flushPendingCoop": 95950560,
+    "buildSnapshot": 97945552,
+    "playerDamage": 97174784
   },
   "mapTravel": {
     "runOffsets": {
@@ -256,16 +256,16 @@
   "trainer": {
     "combat": {
       "schema": 1,
-      "version": "0.130.0",
-      "sha256": "8829953418a4d996cc5287f0e9fad25407ca30ceb64d105a4f57833caef78016",
+      "version": "0.131.0",
+      "sha256": "5dd6819d836748ccf809ab76fe6509c9ee793e087939b5d036c430d835a14e63",
       "functions": {
-        "playerDamage": 97136336,
-        "xpAward": 97218000,
-        "statRecompute": 97130704,
-        "skillTick": 97101696,
-        "passiveSkillTick": 97497120,
-        "skillCast": 97434656,
-        "enemyDamage": 97246480
+        "playerDamage": 97174784,
+        "xpAward": 97256448,
+        "statRecompute": 97169152,
+        "skillTick": 97140144,
+        "passiveSkillTick": 97535568,
+        "skillCast": 97473104,
+        "enemyDamage": 97284928
       },
       "functionHeadSha256": {
         "playerDamage": "f21cbf4384420d2dd3ae19834753eedb152f70a5e8f7af77490be52914119754",
@@ -313,65 +313,65 @@
       "phaseOffset": 3491,
       "costSites": [
         {
-          "rva": 97010282,
+          "rva": 97048730,
           "costRegister": "rcx",
           "overflowRegister": "r9",
           "headSha256": "6bf44f152deac70f81b92f4793f3a75b0e072da18ab9d9e273bb9ac9f21069c6"
         },
         {
-          "rva": 97159400,
+          "rva": 97197848,
           "costRegister": "rcx",
           "overflowRegister": "r9",
           "headSha256": "dc4efd97c6bd54e8373b7e76f40099e7b74d62064204a14f52d8394c191691b9"
         },
         {
-          "rva": 97633524,
+          "rva": 97671972,
           "costRegister": "rcx",
           "overflowRegister": "r9",
           "headSha256": "10f3be7369e659fa16d63b1d45105c7c294ccd50215c651a04b5a74467fa9177"
         },
         {
-          "rva": 97638127,
+          "rva": 97676575,
           "costRegister": "rcx",
           "overflowRegister": "r9",
-          "headSha256": "395fea72d0765717893adbf057bcbe8eb8f10a75845916f1f3042910874705d1"
+          "headSha256": "ef47c8001f7d018d6fab372d77b30dcb162c5b6e74be40f5c07386031d67fbba"
         },
         {
-          "rva": 97681379,
+          "rva": 97719827,
           "costRegister": "r8",
           "overflowRegister": "r10",
           "headSha256": "a76649a50662751e1d1636c68949847106900de5ee7cace24455b91bf254c7cf"
         }
       ],
-      "card": 97643136,
-      "chest": 97356688,
-      "chestStore": 97356750,
-      "chestHud": 97010562,
-      "chestJson": 97158670,
-      "banishGate": 97665015,
-      "banishStore": 97665127,
-      "banishUi": 97634667,
-      "choiceSerializer": 97634352,
-      "choiceTypeLengths": 125294816,
-      "choiceTypePointers": 125294840,
-      "generatedGear": 97234817,
+      "card": 97681584,
+      "chest": 97395136,
+      "chestStore": 97395198,
+      "chestHud": 97049010,
+      "chestJson": 97197118,
+      "banishGate": 97703463,
+      "banishStore": 97703575,
+      "banishUi": 97673115,
+      "choiceSerializer": 97672800,
+      "choiceTypeLengths": 125347360,
+      "choiceTypePointers": 125347384,
+      "generatedGear": 97273265,
       "generatedGearRegister": "rbx",
       "uiVectorOffset": 1672,
       "goldSites": [
         {
-          "rva": 96690623,
+          "rva": 96715023,
           "runRegister": "rsi",
           "amountRegister": "rax",
           "headSha256": "c4a2f5aca7cf0888993f701ff5e33b5b6b5229bd7726e79d5e794159f7bac966"
         },
         {
-          "rva": 97043099,
+          "rva": 97081547,
           "runRegister": "r13",
           "amountRegister": "rcx",
           "headSha256": "899a92a1e9bb9f5705f258b4f8965b854ed4b12740387100ab601cec266c0036"
         },
         {
-          "rva": 97231176,
+          "rva": 97269624,
           "runRegister": "rsi",
           "amountRegister": "rcx",
           "headSha256": "5c614840760fb853823fe3958c2e65634afe36884ba55f6ae46c51a07934bb9e"
@@ -379,37 +379,37 @@
       ],
       "copperSites": [
         {
-          "rva": 96690650,
+          "rva": 96715050,
           "runRegister": "rsi",
-          "headSha256": "1b63bc8257a470757ad77a056446b49982cd6e58169fb6c7e1d87cccb22d7c94"
+          "headSha256": "48b67f384336a2b775bd446c34dd80b0d70ee24cd65ce1668bc0653994889cf2"
         },
         {
-          "rva": 97043129,
+          "rva": 97081577,
           "runRegister": "r13",
           "headSha256": "3189304798b843d09878b375bd129e8302746ee942a2c745eefaee6360dd2557"
         },
         {
-          "rva": 97231203,
+          "rva": 97269651,
           "runRegister": "rsi",
           "headSha256": "cb44dda69815c7548f5ad9ab1049f581265407bac75fc87fd2afe247750d0bdd"
         },
         {
-          "rva": 97120150,
+          "rva": 97158598,
           "runRegister": "rdi",
           "headSha256": "cdb7aceed0562a101f1bddf7157a6b8017b51746fbf980699a9d706e1dd962d4"
         },
         {
-          "rva": 97120327,
+          "rva": 97158775,
           "runRegister": "rdi",
           "headSha256": "c207b4fe2b18a36df88accc58328f0bc76275816f4bb8e26a29ac7db521668b1"
         },
         {
-          "rva": 97681444,
+          "rva": 97719892,
           "runRegister": "rcx",
           "headSha256": "1aa93055ada0fa5114feba5ab9ad4b55d4bd7b838962ec7d7f18211a0ec17e4b"
         },
         {
-          "rva": 97356840,
+          "rva": 97395288,
           "runRegister": "rsi",
           "headSha256": "b8356c8f5043af2634d3ced8986ef15a359e2ba786d1155ff04a7cfa32498d88"
         }
@@ -1000,22 +1000,22 @@
       "headSha256": {
         "card": "63b141ca96cfd87b55f7c7e1f11b73a5b902d2c36ad49ed36d36c4f1c37963b8",
         "chest": "1e7ad74143f239a361ab0b378c2106efe3383176ce48259db22dfdbf6bf91c4b",
-        "chestStore": "3f32f9255e7883f30f4864b664c998b4780717b1313c26b8059e916643a17011",
+        "chestStore": "f6e1a8d9b39eeb45510501dfb8e355ef673ff5c54e16989796a615b5049e70f8",
         "chestHud": "dcd141e32d4a9c45521c1e619374ecc9a2f7987c8e7b87825b5d75d331190eaa",
         "chestJson": "d75c5fb10781ee248115e25812f5738d2bf9aeba462bf03bd9768701159c2450",
         "banishGate": "5655cf25e7b3d98d450e76f2d77f2c17b98dc131c0283ee40ac36a43d009fe56",
-        "banishStore": "2556a4abcd407e7454c15eb74610d1a9a8f9b66d7c914c68b57e7074ffed1f6c",
+        "banishStore": "88ed33d13f127ae83f3132d03a84109428d35830e63646c521400ba247115dc2",
         "banishUi": "85a7327640d733b66418a0edd6a0b2511b05842dd5c0bc690d6c77bf6223aef9",
         "choiceSerializer": "69118280ab484cee7a1f86ae892f8dafd7e573ee5d724f6bdffca8c0d8eefc3a",
         "generatedGear": "0f417206d6354a8bb2342c366f995159c560a3d53b68487e626aafa5574b5ced",
         "freeRerollStore": "08605a50f445a37f7e7302b4f1d323414cff5bc3410fa41297fa64dead7eb821"
       },
-      "freeRerollStore": 97681200,
-      "version": "0.130.0",
-      "sha256": "8829953418a4d996cc5287f0e9fad25407ca30ceb64d105a4f57833caef78016"
+      "freeRerollStore": 97719648,
+      "version": "0.131.0",
+      "sha256": "5dd6819d836748ccf809ab76fe6509c9ee793e087939b5d036c430d835a14e63"
     },
     "actions": {
-      "victory": 97230464,
+      "victory": 97268912,
       "winTime": 3060,
       "nextBossIndex": 3184,
       "creatureStride": 80,
@@ -1025,35 +1025,35 @@
       "guardianPointer": 1728,
       "guardianLength": 1736,
       "guardianStride": 40,
-      "guardianSpawnDefinition": 97682132,
-      "guardianAnnouncementDefinition": 97683853,
-      "guardianTargetDefinition": 97684656,
-      "guardianRehealthIndex": 97299445,
-      "guardianHealth": 97687008,
-      "guardianDamage": 97688288,
+      "guardianSpawnDefinition": 97720580,
+      "guardianAnnouncementDefinition": 97722301,
+      "guardianTargetDefinition": 97723104,
+      "guardianRehealthIndex": 97337893,
+      "guardianHealth": 97725456,
+      "guardianDamage": 97726736,
       "headSha256": {
         "victory": "c4eacde0d79f86eb934d0c4856df51569126040d71792c53928d1db6f50f7b6c",
         "guardianSpawnDefinition": "8a6b67240b8546913b918d122de7a9637607356f7aeca415a71d0c9b51dce1da",
-        "guardianAnnouncementDefinition": "f844100fbb42ef7731cd8286d1b47a467ad0769dcccffa088ab3b71014613a47",
-        "guardianTargetDefinition": "cd04283625b2db7c36c0b221a9fb18b926733916d9089f7b27fe8f719b7cbc81",
+        "guardianAnnouncementDefinition": "cc5d876cdb282fa2416640277e9282f5ec8ef661d08aa8b9bc61e151cd469d79",
+        "guardianTargetDefinition": "fc9d83ad378831598eeb4777a895c6118a765d1ab9169faba1957116fa032ee4",
         "guardianRehealthIndex": "bcf04c7fbc23b8305f85254e3c2f6eb44e5b8ada0fb2fc331107cd907225734a",
         "guardianHealth": "257897d50b76d1a5b23186536dcf4f2f4086184516213491691c11c696c606e7",
         "guardianDamage": "9f39f101b31327ca1998a2669bba9439d1915b8e233c2a0493049ebb3c634ab5"
       },
       "functions": {
-        "victory": 97230464,
-        "guardianHealth": 97687008,
-        "guardianDamage": 97688288
+        "victory": 97268912,
+        "guardianHealth": 97725456,
+        "guardianDamage": 97726736
       },
       "hooks": {
-        "guardianSpawnDefinition": 97682132,
-        "guardianAnnouncementDefinition": 97683853,
-        "guardianTargetDefinition": 97684656,
-        "guardianRehealthIndex": 97299445
+        "guardianSpawnDefinition": 97720580,
+        "guardianAnnouncementDefinition": 97722301,
+        "guardianTargetDefinition": 97723104,
+        "guardianRehealthIndex": 97337893
       },
       "schema": 1,
-      "version": "0.130.0",
-      "sha256": "8829953418a4d996cc5287f0e9fad25407ca30ceb64d105a4f57833caef78016",
+      "version": "0.131.0",
+      "sha256": "5dd6819d836748ccf809ab76fe6509c9ee793e087939b5d036c430d835a14e63",
       "functionHeadSha256": {
         "victory": "c4eacde0d79f86eb934d0c4856df51569126040d71792c53928d1db6f50f7b6c",
         "guardianHealth": "257897d50b76d1a5b23186536dcf4f2f4086184516213491691c11c696c606e7",
@@ -1061,8 +1061,8 @@
       },
       "hookHeadSha256": {
         "guardianSpawnDefinition": "8a6b67240b8546913b918d122de7a9637607356f7aeca415a71d0c9b51dce1da",
-        "guardianAnnouncementDefinition": "f844100fbb42ef7731cd8286d1b47a467ad0769dcccffa088ab3b71014613a47",
-        "guardianTargetDefinition": "cd04283625b2db7c36c0b221a9fb18b926733916d9089f7b27fe8f719b7cbc81",
+        "guardianAnnouncementDefinition": "cc5d876cdb282fa2416640277e9282f5ec8ef661d08aa8b9bc61e151cd469d79",
+        "guardianTargetDefinition": "fc9d83ad378831598eeb4777a895c6118a765d1ab9169faba1957116fa032ee4",
         "guardianRehealthIndex": "bcf04c7fbc23b8305f85254e3c2f6eb44e5b8ada0fb2fc331107cd907225734a"
       }
     }
