@@ -14,7 +14,7 @@ and deliberate collection unlocks can persist in your native game save.
 Your chosen executable path, compatibility report and verified collection backups
 remain under `%LOCALAPPDATA%/AzerothSurvivorsTrainerNative`. Toggles start off on
 each launch. There is no telemetry, analytics, save upload or remote-control
-service. Nothing is automatically sent to GitHub.
+service. No saves, settings or local paths are sent to GitHub.
 
 Collection unlocks require a separate confirmation. The trainer closes its game,
 verifies a backup outside the live save directory, checks the original has not
@@ -23,3 +23,7 @@ save also restores the earlier progress recorded in that backup.
 
 Only distribute the EXE or ZIP from Releases, not your local backup/settings
 folders. A decompressed artifact audit and SHA-256 checksums accompany releases.
+
+## Optional release updates
+
+At startup and when you select Check for updates, the launcher requests public release metadata from its project's GitHub API. This sends no game saves, settings, local paths or credentials. GitHub receives ordinary connection metadata, such as the network address and application user agent. No account or token is used. The check runs in the background and never blocks launch; it does not download or install software. Download update opens the project's GitHub release page in your browser.

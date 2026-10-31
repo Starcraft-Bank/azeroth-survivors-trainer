@@ -11,7 +11,7 @@ import zipfile
 from PyInstaller.archive.readers import CArchiveReader
 
 ROOT=Path(__file__).resolve().parent
-EXE=ROOT/'dist/AzerothSurvivorsTrainerNative-2.1.4.exe'
+EXE=ROOT/'dist/AzerothSurvivorsTrainerNative-2.1.5.exe'
 
 def main():
     failures=[]
@@ -50,7 +50,7 @@ def main():
         elif isinstance(obj,bytes):scan(label,obj)
         elif isinstance(obj,(tuple,list)):
             for index,value in enumerate(obj):code(label+':item'+str(index),value)
-    allowed={'resilience.js'}|{'map_travel.js','LICENSE', 'native-profile.json', 'collection-catalog.json', 'trainer.js', 'app.py', 'compatibility.py', 'build_windows.py', 'requirements-build.txt', 'economy.js', 'overlay.py', 'README.txt', 'window_bridge.py', 'THIRD_PARTY_NOTICES.md', 'combat.js', 'actions.js', 'audit_release.py', 'README.md', '.gitignore', 'PRIVACY.md', 'runtime.py', 'settings.py', 'collection.py', 'compatibility-manifest.json'}
+    allowed={'updates.py'}|{'resilience.js'}|{'map_travel.js','LICENSE', 'native-profile.json', 'collection-catalog.json', 'trainer.js', 'app.py', 'compatibility.py', 'build_windows.py', 'requirements-build.txt', 'economy.js', 'overlay.py', 'README.txt', 'window_bridge.py', 'THIRD_PARTY_NOTICES.md', 'combat.js', 'actions.js', 'audit_release.py', 'README.md', '.gitignore', 'PRIVACY.md', 'runtime.py', 'settings.py', 'collection.py', 'compatibility-manifest.json'}
     public=[]
     for path in sorted(ROOT.rglob('*')):
         if not path.is_file():continue
@@ -80,7 +80,7 @@ def main():
                 scan('EXE!'+name,payload)
                 if any(marker in payload for marker in forbidden):failures.append({'file':name,'reason':'private feature in public EXE'})
     failures=list({(item['file'],item['reason']):item for item in failures}.values())
-    result={'passed':not failures,'version':'2.1.4','exe':EXE.name,'sha256':hashlib.sha256(EXE.read_bytes()).hexdigest(),
+    result={'passed':not failures,'version':'2.1.5','exe':EXE.name,'sha256':hashlib.sha256(EXE.read_bytes()).hexdigest(),
             'scannedPayloads':scanned,'publicSourceFiles':public,'findings':failures,
             'upstreamRuntimeExceptions':[{'file':'frida/_frida.pyd','sha256':'2157c0a2d83222cfb377e7c4526ac4fd117635ee3c883867af4e919d57d8a753','scope':'Exact unmodified upstream binary: generic documentation placeholder and GitHub Actions runneradmin build paths only; build-account and token scans still apply.'}],
             'checks':['allowlisted public source','decompressed EXE archive','Python module filenames and constants',

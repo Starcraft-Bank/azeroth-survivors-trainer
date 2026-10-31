@@ -7,6 +7,7 @@ from runtime import NativeGame,ROOT,VERSION,compatibility_check,self_test
 from settings import DEFAULTS,validate_settings
 from overlay import Overlay,theme,BG,CARD,TEXT,MUTED,GOLD
 from collection import unlock_save,game_processes
+from updates import UpdateFooter
 HOME=Path(os.environ.get('LOCALAPPDATA',Path.home()))/'AzerothSurvivorsTrainerNative'
 
 class App:
@@ -14,7 +15,7 @@ class App:
   self.window=window;self.game=None;self.settings=dict(DEFAULTS);self.launching=False;self.unlocking=False;self.events=queue.Queue();self.saved={}
   try:self.saved=json.loads((HOME/'settings.json').read_text(encoding='utf-8'))
   except (OSError,ValueError):pass
-  window.title('Azeroth Survivors Trainer · Native '+VERSION);window.geometry('650x430');window.minsize(590,420);window.configure(bg=BG);theme(window)
+  window.title('Azeroth Survivors Trainer · Native '+VERSION);window.geometry('650x550');window.minsize(590,540);window.configure(bg=BG);theme(window)
   try:window.iconbitmap(str(ROOT/'assets/wow.ico'))
   except tk.TclError:pass
   p=tk.Frame(window,bg=BG);p.pack(fill='both',expand=True,padx=28,pady=24)
@@ -32,6 +33,7 @@ class App:
   tk.Label(p,text='Press Insert for all controls. Use windowed or borderless mode.\nAll cheats start off. Keep the trainer open while playing.',bg=BG,fg=MUTED,font=('Segoe UI',10),justify='left').pack(anchor='w')
   row=ttk.Frame(p);row.pack(fill='x',pady=(15,0));ttk.Button(row,text='Usage guide',command=lambda:os.startfile(str(ROOT/'README.txt'))).pack(side='left')
   self.check=ttk.Button(row,text='Optional diagnostics',command=self.check_compatibility);self.check.pack(side='right')
+  self.updates=UpdateFooter(p,VERSION,'Starcraft-Bank/azeroth-survivors-trainer')
   self.overlay=Overlay(self);window.protocol('WM_DELETE_WINDOW',self.quit);window.after(150,self.poll)
  def choose(self):
   value=filedialog.askopenfilename(title='Select AzerothSurvivors.exe',filetypes=[('Windows executable','*.exe')])
@@ -121,7 +123,7 @@ class App:
   if self.unlocking:messagebox.showinfo('Collection update in progress','Wait for the verified save operation to finish.',parent=self.window);return
   if self.game and not messagebox.askyesno('Close trainer and game?','Closing the trainer also closes its game. Continue?',parent=self.window):return
   if self.game:self.game.close()
-  self.overlay.hotkey.stop();self.window.destroy()
+  self.updates.close();self.overlay.hotkey.stop();self.window.destroy()
 
 def main():
  parser=argparse.ArgumentParser();parser.add_argument('--diagnose',action='store_true');parser.add_argument('--self-test',action='store_true');parser.add_argument('--game');parser.add_argument('--report');parser.add_argument('--seconds',type=int,default=15);a=parser.parse_args()

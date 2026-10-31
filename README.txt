@@ -1,5 +1,11 @@
 Discord: https://discord.gg/pC4n2fvrmD
 
+## Update notices
+
+The launcher checks its project's public GitHub release metadata in the background when opened. Select Check for updates to check again; if a newer release is available, Download update opens its GitHub page. Updating is optional: notices never block launching or playing, and nothing is downloaded or installed automatically. A failed or offline check leaves the launcher usable.
+
+The request sends no game saves, settings, local paths or credentials. GitHub receives the ordinary connection metadata needed to serve the request.
+
 **Launch Behavior**
 Game startup no longer requires a matching version or a successful hook-pattern scan. Failed hook installations are reported individually, while other hooks remain active. If the shared extension runtime cannot initialize, its partial hooks are removed and the normal game opens instead.
 
@@ -10,7 +16,7 @@ Unknown game builds use a best-effort bundled layout. This removes startup block
 A standalone Windows trainer for the native **Azeroth Survivors** game, including the tested **0.130.1** hotfix. This is separate from Legendary Mayhem: it adds optional cheat
 controls without Mayhem's automatic waves, events or difficulty scaling.
 
-## Updated in 2.1.4
+## Launch and menu behavior
 
 Startup - No version or required-hook launch gate; failed hooks are skipped.
 
