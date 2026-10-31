@@ -47,11 +47,12 @@ class Overlay:
    self.pages[name]=page;self.canvases[str(outer)]=canvas
   self.window.bind('<MouseWheel>',self.scroll)
   p=self.pages['Combat'];self.heading(p,'Control the fight','Changes apply immediately. All cheats start off each time you launch.')
-  for key,title,detail in [('god','God mode','Prevent incoming damage to players simulated by your host, including co-op guests.'),('oneHit','One-Hit Kill','Defeat enemies with a successful hit.'),('killAura','Kill Aura','Defeat nearby enemies automatically, including bosses.'),('rapid','Rapid skills','Shorten base-attack and learned-skill cooldowns.'),('xp','XP boost','Multiply incoming match experience.'),('area','Skill area','Increase supported skill ranges and radii.')]:self.toggle(p,key,title,detail)
-  for key,title in [('rapidSeconds','Rapid cooldown · seconds'),('xpMultiplier','Experience multiplier'),('areaMultiplier','Skill-area multiplier'),('damageMultiplier','Damage multiplier'),('speedMultiplier','Movement-speed multiplier')]:self.combo(p,key,title)
+  for key,title,detail in [('god','God mode','Prevent incoming damage to players simulated by your host, including co-op guests.'),('oneHit','One-Hit Kill','Defeat enemies with a successful hit.'),('killAura','Kill Aura','Defeat nearby enemies automatically, including bosses.'),('rapid','Rapid skills','Shorten base-attack and learned-skill cooldowns.'),('area','Skill area','Increase supported skill ranges and radii.')]:self.toggle(p,key,title,detail)
+  for key,title in [('rapidSeconds','Rapid cooldown · seconds'),('areaMultiplier','Skill-area multiplier'),('damageMultiplier','Damage multiplier')]:self.combo(p,key,title)
   self.values['killAuraRadius']=tk.StringVar(value='25');self.combo(p,'killAuraRadius','Kill Aura radius',values=[5,10,15,25,50,100])
   self.note(p,'Skills still need valid targets. Killing a final boss can finish the match. Turning a cheat off restores its normal behavior; earned XP and loot remain.')
   p=self.pages['Rewards'];self.heading(p,'Rewards without the grind','Use each economy control independently.')
+  self.toggle(p,'xp','XP boost','Multiply incoming match experience.');self.combo(p,'xpMultiplier','Experience multiplier')
   for key,title,detail in [('gold','Unlimited gold','Maintain the game’s maximum run balance: 4,294,967,295.'),('freeChests','Free chests','Open paid chests for 0 gold.'),('freeRerolls','Free rerolls','Generate another choice for 0 gold.'),('unlimitedBanish','Unlimited banishes','Keep using the native banish action.'),('legendary','All Legendary rolls','Generate supported choices and class gear at Legendary quality.')]:self.toggle(p,key,title,detail)
   self.heading(p,'Drop supplies','Spawn native collectibles near your hero.')
   self.action_row(p,[('Spawn chest','spawnChest',{}),('Spawn Speed Rune','spawnPowerup',{'kind':3})])
@@ -60,10 +61,6 @@ class Overlay:
   p=self.pages['Spawners'];self.heading(p,'Build your own encounter','Choose a map, then a boss or guardian. These actions require the host.')
   self.zone=tk.StringVar();self.boss=tk.StringVar();self.guardian=tk.StringVar()
   self.zone_box=self.select(p,'Map',self.zone,[]);self.zone_box.bind('<<ComboboxSelected>>',lambda e:self.refresh_zone())
-  self.travel_button=ttk.Button(p,text='Travel to selected map…',command=self.travel,state='disabled');self.travel_button.pack(anchor='w',pady=(0,8))
-  self.travel_info=tk.StringVar(value='Start a solo match or host a match to transfer maps.')
-  ttk.Label(p,textvariable=self.travel_info,foreground=MUTED,wraplength=640,justify='left').pack(fill='x',pady=(0,8))
-  self.note(p,'Map travel moves the whole party and keeps player levels, items and match time. The original run still determines completion rewards.')
   self.boss_box=self.select(p,'Boss',self.boss,[]);self.boss_box.bind('<<ComboboxSelected>>',lambda e:self.select_boss())
   self.action_row(p,[('Spawn selected boss','selectedBoss',{}),('Spawn next scheduled boss','spawnNextBoss',{})])
   self.toggle(p,'bossEnemies','Boss enemies','Replace new normal enemy spawns with the selected boss.')
@@ -78,7 +75,16 @@ class Overlay:
   tk.Label(box,text='Return to the character menu. The trainer closes its game,\nbacks up your save, applies the unlocks and restarts it.',fg=MUTED,bg=CARD,font=('Segoe UI',10),justify='left').pack(anchor='w',padx=16,pady=(0,14))
   self.unlock_button=ttk.Button(p,text='Unlock collection…',command=app.unlock_collection,style='Gold.TButton');self.unlock_button.pack(anchor='w',pady=6)
   ttk.Button(p,text='Open verified backups',command=app.open_backups).pack(anchor='w',pady=6)
-  p=self.pages['Session'];self.heading(p,'Match actions','One-shot controls for the active run.')
+  p=self.pages['Session'];self.heading(p,'Player movement','Change your movement speed without changing the shared game clock.')
+  self.combo(p,'speedMultiplier','Movement-speed multiplier')
+  self.heading(p,'Party map travel','Choose a destination independently of the enemy spawner map.')
+  self.travel_zone=tk.StringVar();self.travel_zone_box=self.select(p,'Destination map',self.travel_zone,[])
+  self.travel_zone_box.bind('<<ComboboxSelected>>',lambda e:self.refresh_travel())
+  self.travel_button=ttk.Button(p,text='Travel to selected map…',command=self.travel,state='disabled');self.travel_button.pack(anchor='w',pady=(0,8))
+  self.travel_info=tk.StringVar(value='Start a solo match or host a match to transfer maps.')
+  ttk.Label(p,textvariable=self.travel_info,foreground=MUTED,wraplength=640,justify='left').pack(fill='x',pady=(0,8))
+  self.note(p,'Map travel moves the whole party and keeps player levels, items and match time. The original run still determines completion rewards.')
+  self.heading(p,'Match actions','One-shot controls for the active run.')
   self.action_row(p,[('Instant win…','instantWin',{}),('Clear all enemies…','killAll',{})])
   self.note(p,'Instant win uses native victory processing. Clearing enemies can also finish a match if its final boss is present. These actions cannot be undone during the run.')
   self.heading(p,'Shortcuts','Insert opens or closes this panel. Escape closes it.')
@@ -120,6 +126,8 @@ class Overlay:
   for k,v in self.values.items():v.set(str(self.app.settings[k]))
  def set_catalog(self,data):
   self.catalog_data=data;self.zone_box.configure(values=[z['name'] for z in data.get('zones',[])])
+  self.travel_zone_box.configure(values=[z['name'] for z in data.get('zones',[])])
+  if data.get('zones') and not self.travel_zone.get():self.travel_zone.set(data['zones'][0]['name'])
   if data.get('zones'):self.zone.set(data['zones'][0]['name']);self.refresh_zone()
  def refresh_zone(self):
   zones=self.catalog_data.get('zones',[]);z=next((v['id'] for v in zones if v['name']==self.zone.get()),0)
@@ -130,9 +138,13 @@ class Overlay:
   else:self.guardian.set('No guardian entries')
   self.refresh_travel()
  def update_travel(self,state):
-  self.travel_state=dict(state or {});self.refresh_travel()
+  self.travel_state=dict(state or {});catalog=self.travel_state.get('catalog') or []
+  if catalog:
+   self.travel_zone_box.configure(values=[z['name'] for z in catalog])
+   if self.travel_zone.get() not in [z['name'] for z in catalog]:self.travel_zone.set(catalog[0]['name'])
+  self.refresh_travel()
  def refresh_travel(self):
-  state=self.travel_state;catalog=state.get('catalog') or [];selected=next((z for z in catalog if z['name']==self.zone.get()),None)
+  state=self.travel_state;catalog=state.get('catalog') or [];selected=next((z for z in catalog if z['name']==self.travel_zone.get()),None)
   current=state.get('currentZone');same=bool(selected and current in (selected['key'],selected['id']))
   ready=bool(state.get('supported') and state.get('canTravel') and not state.get('busy') and selected and not same)
   self.travel_button.configure(state='normal' if ready else 'disabled')
@@ -140,7 +152,7 @@ class Overlay:
   reason='Moving the party…' if state.get('busy') else 'Choose another map.' if same and state.get('canTravel') else state.get('reason') or ('Ready to move the party.' if ready else 'Map transfer is unavailable in this state.')
   self.travel_info.set(f'Current: {names(current)} · Original: {names(state.get("originZone"))}\n{reason}')
  def travel(self):
-  selected=next((z for z in self.travel_state.get('catalog',[]) if z['name']==self.zone.get()),None)
+  selected=next((z for z in self.travel_state.get('catalog',[]) if z['name']==self.travel_zone.get()),None)
   if not selected or not self.travel_state.get('canTravel') or self.travel_state.get('busy'):return
   if not messagebox.askyesno('Move the whole party?',f'Move every player in this match to {selected["name"]}?\n\nPlayer levels, carried items, gold and match time are kept. Existing enemies, hazards and uncollected drops are cleared. Completion rewards remain tied to the original run.',parent=self.window):return
   try:self.app.travel(selected['key']);self.feedback.set('Party map transfer queued.');self.travel_button.configure(state='disabled')
@@ -181,6 +193,9 @@ class Overlay:
   for b in self.action_buttons:b.configure(state='normal' if active and not fault else 'disabled')
   self.unlock_button.configure(state='normal' if not self.app.unlocking and not fault and (m is None or m['phase']==0) else 'disabled')
   if fault:self.feedback.set(fault.splitlines()[0])
+  elif item.get('unavailableFeatures'):
+   names=list(dict.fromkeys(e.get('feature','Feature') for e in item['unavailableFeatures']))
+   self.feedback.set('Unavailable: '+', '.join(names)+'. Other controls remain available.')
   elif item.get('notice'):self.feedback.set(item['notice'])
  def scroll(self,e):
   c=self.canvases.get(self.tabs.select())

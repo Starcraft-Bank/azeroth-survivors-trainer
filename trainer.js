@@ -31,14 +31,14 @@
    results.push({id:item.id,name:item.name,result});if(results.length>20)results.shift();
   }
  }
- Interceptor.attach(base.add(profile.functions.gameUpdate),{onEnter(a){game=a[0];},onLeave(){guarded(()=>{
+ AZS_HOOKS.attach(base.add(profile.functions.gameUpdate),{onEnter(a){game=a[0];},onLeave(){guarded(()=>{
   run=game.add(16).readU64().toString()==='2'?null:game.add(16);if(!run)travel.reset(true);
   // Native level-up menus may pause runTick. Refresh cached economy UI and
   // service explicit actions on this same game thread while choosing a card.
   if(run&&!fault&&run.add(F(0xca2)).readU8()===2){modules.economy.tick?.(run);drain();}
   if(Date.now()-lastReport>300){lastReport=Date.now();send({kind:'status',...status()});}
  });}});
- Interceptor.attach(base.add(profile.functions.runTick),{onEnter(a){guarded(()=>{
+ AZS_HOOKS.attach(base.add(profile.functions.runTick),{onEnter(a){guarded(()=>{
   run=a[0];if(fault)return;travel.tick(run);const phase=run.add(F(0xca2)).readU8();
   if(phase!==1&&phase!==2){if(queue.length){queue=[];notice('Start a live match before using match actions.');}return;}
   if(travel.status().busy)return;
@@ -50,5 +50,6 @@
    settings={...v};return true;},
   action(name,args={}){if(typeof name!=='string'||!args||typeof args!=='object'||Array.isArray(args)||queue.length>=8||fault)return false;
    const m=guarded(match);if(!m||![1,2].includes(m.phase))return false;const id=++seq;queue.push({id,name,args});return id;},reset(){disable();return true;}};
+ setInterval(()=>{if(Date.now()-lastReport>950){lastReport=Date.now();send({kind:'status',...status()});}},1000);
  send({kind:'ready',version:profile.version});
 })();

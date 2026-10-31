@@ -10,7 +10,7 @@
    const address=base.add(p.functions[name]);
    const original=new NativeFunction(address,ret,types);
    const replacement=new NativeCallback((...args)=>body(original,...args),ret,types);
-   retained.push(original,replacement);Interceptor.replace(address,replacement);
+   retained.push(original,replacement);AZS_HOOKS.replace(address,replacement);
   }
   // This entry handles both enemy attacks and damaging ground hazards. Skipping
   // it prevents death in the same call, including damage larger than max HP.
@@ -29,7 +29,7 @@
     }
     original(r,guid,damage,a,b,c,d);
    });
-  listeners.push(Interceptor.attach(base.add(p.functions.xpAward),{onEnter(a){guarded(()=>{
+  listeners.push(AZS_HOOKS.attach(base.add(p.functions.xpAward),{onEnter(a){guarded(()=>{
    const s=getSettings();if(!s.xp||!sameRun(a[0]))return;
    const current=a[0].add(f.xp).readU32(),amount=a[1].toUInt32();
    const scaled=Math.min(0xffffffff-current,Math.floor(amount*s.xpMultiplier));
@@ -46,7 +46,7 @@
    for(let i=0;i<n;i++)clampTimer(data.add(i*stride+f.skillRemaining),seconds);
    counters.rapidTicks++;
   }
-  for(const [name,passive] of [['skillTick',false],['passiveSkillTick',true]])listeners.push(Interceptor.attach(base.add(p.functions[name]),{
+  for(const [name,passive] of [['skillTick',false],['passiveSkillTick',true]])listeners.push(AZS_HOOKS.attach(base.add(p.functions[name]),{
    onEnter(a){this.run=a[0];guarded(()=>{applyStats(this.run);rapid(this.run,passive);});},
    onLeave(){guarded(()=>rapid(this.run,passive));}
   }));
@@ -66,7 +66,7 @@
     state[name]={natural,applied};
    }
   }
-  listeners.push(Interceptor.attach(base.add(p.functions.statRecompute),{
+  listeners.push(AZS_HOOKS.attach(base.add(p.functions.statRecompute),{
    onEnter(a){this.run=a[0];},onLeave(){guarded(()=>applyStats(this.run,true));}
   }));
   return {tick(r){applyStats(r);rapid(r);},status(){return {...counters,areaCoverage:'Native area scaling; fixed ranges and native soft caps remain.'};}};

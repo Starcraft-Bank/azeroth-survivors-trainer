@@ -27,11 +27,11 @@ class App:
   row=ttk.Frame(p);row.pack(fill='x');self.launch=ttk.Button(row,text='Launch with trainer',command=self.open_game,style='Gold.TButton');self.launch.pack(side='left')
   self.open_panel=ttk.Button(row,text='Open panel  [ INS ]',command=lambda:self.overlay.show(),state='disabled');self.open_panel.pack(side='left',padx=8)
   self.stop=ttk.Button(row,text='Close game',command=self.close_game,state='disabled');self.stop.pack(side='right')
-  self.status=tk.StringVar(value='Ready. Build identity is advisory; required hook locations are checked.')
+  self.status=tk.StringVar(value='Ready. Launch is not blocked by version or hook checks.')
   tk.Label(p,textvariable=self.status,bg=CARD,fg=TEXT,font=('Segoe UI',10),justify='left',anchor='w',wraplength=550,padx=14,pady=14).pack(fill='x',pady=17)
   tk.Label(p,text='Press Insert for all controls. Use windowed or borderless mode.\nAll cheats start off. Keep the trainer open while playing.',bg=BG,fg=MUTED,font=('Segoe UI',10),justify='left').pack(anchor='w')
   row=ttk.Frame(p);row.pack(fill='x',pady=(15,0));ttk.Button(row,text='Usage guide',command=lambda:os.startfile(str(ROOT/'README.txt'))).pack(side='left')
-  self.check=ttk.Button(row,text='Check compatibility',command=self.check_compatibility);self.check.pack(side='right')
+  self.check=ttk.Button(row,text='Optional diagnostics',command=self.check_compatibility);self.check.pack(side='right')
   self.overlay=Overlay(self);window.protocol('WM_DELETE_WINDOW',self.quit);window.after(150,self.poll)
  def choose(self):
   value=filedialog.askopenfilename(title='Select AzerothSurvivors.exe',filetypes=[('Windows executable','*.exe')])
@@ -50,7 +50,7 @@ class App:
   if self.game or self.launching or self.unlocking:return
   if game_processes():messagebox.showinfo('Close the game first','Close your other Azeroth Survivors game before launching the trainer.',parent=self.window);return
   self.settings=dict(DEFAULTS);self.overlay.sync();self.launching=True;self.launch.configure(state='disabled');self.browse.configure(state='disabled');self.entry.configure(state='disabled');self.save()
-  self.status.set('Checking compatibility and launching the game…');game=NativeGame();self.game=game;path=self.path.get()
+  self.status.set('Starting the game and initializing available features…');game=NativeGame();self.game=game;path=self.path.get()
   def work():
    try:game.start(path,self.settings)
    except Exception as e:game.events.put({'kind':'launch-error','error':str(e)})
@@ -105,6 +105,9 @@ class App:
      item=self.game.events.get_nowait();kind=item.get('kind')
      if kind=='ready':
       self.launching=False;self.open_panel.configure(state='normal');self.stop.configure(state='normal');self.status.set(('UNVERIFIED BUILD. ' if self.game.unverified else '')+'Trainer ready. Press Insert. All cheats are off.');self.overlay.set_catalog(self.game.catalog())
+     elif kind=='degraded':
+      self.launching=False;self.stop.configure(state='normal');self.open_panel.configure(state='disabled');self.status.set(item['text'])
+     elif kind=='feature-unavailable':self.status.set(item['feature']+' unavailable; game continues.')
      elif kind=='status':self.overlay.update_status(item)
      elif kind=='notice':self.overlay.feedback.set(item['text'])
      elif kind=='fault':self.status.set('Trainer error: '+item['error'].splitlines()[0])

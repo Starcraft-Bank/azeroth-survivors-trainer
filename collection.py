@@ -28,6 +28,8 @@ SUPPORTED_GAMES = {
         ((121504720,121504736,121504752,102958656), (121504768,121504784,121504800,102960240)),
     '8829953418a4d996cc5287f0e9fad25407ca30ceb64d105a4f57833caef78016':
         ((118002672,118002688,118002704,103410464), (118002720,118002736,118002752,103333616)),
+    'e8ff033544095e81d74087ff400d50286b26af02291e649f4c5e4d76cbcf8863':
+        ((118007280,118007296,118007312,103464544), (118007328,118007344,118007360,103334224)),
 }
 CATALOG_VERSIONS = {
     GAME_SHA256: '0.120.5',
@@ -35,6 +37,8 @@ CATALOG_VERSIONS = {
     'de7147a2a3a01b4fb84f3a7f036bc940f9e7d4fdfc42a7fdb79f3f1b2bd798be': '0.123.0',
     '3ef9d74c30bb6b435d739b3d960c8535486836c540e0d8c20f98549a6f1dcbbb': '0.127.0',
     '8829953418a4d996cc5287f0e9fad25407ca30ceb64d105a4f57833caef78016': '0.130.0',
+    # The 0.130.1 racial balance hotfix retains the verified 0.130.0 unlock catalog.
+    'e8ff033544095e81d74087ff400d50286b26af02291e649f4c5e4d76cbcf8863': '0.130.0',
 }
 ROOT = Path(getattr(sys, '_MEIPASS', Path(__file__).resolve().parent))
 CATALOG = ROOT / 'collection-catalog.json'
@@ -52,7 +56,7 @@ def _key(exe, with_catalog=False):
     digest = hashlib.sha256(image).hexdigest()
     offsets = SUPPORTED_GAMES.get(digest)
     if offsets is None:
-        raise ValueError('Unlock supports the verified native 0.120.5, 0.122.0, 0.123.0, 0.127.0 and 0.130.0 builds only.')
+        raise ValueError('Unlock supports the verified native 0.120.5, 0.122.0, 0.123.0, 0.127.0, 0.130.0 and 0.130.1 builds only.')
     # Observed native HMAC inner/outer pad loads, exact artifact file offsets.
     inner = b''.join(image[n:n+16] for n in offsets[0])
     outer = b''.join(image[n:n+16] for n in offsets[1])

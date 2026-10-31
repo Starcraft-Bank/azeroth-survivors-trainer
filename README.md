@@ -1,15 +1,20 @@
 [![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/pC4n2fvrmD)
 
+**Launch Behavior**
+Game startup no longer requires a matching version or a successful hook-pattern scan. Failed hook installations are reported individually, while other hooks remain active. If the shared extension runtime cannot initialize, its partial hooks are removed and the normal game opens instead.
+
+Unknown game builds use a best-effort bundled layout. This removes startup blocking; it does not guarantee that changed game code, data layouts or every feature will work. Optional diagnostics remain available. Permanent collection edits retain their save-format checks.
+
 # Azeroth Survivors Trainer — native edition
 
-A standalone Windows trainer for the native **Azeroth Survivors 0.130.0
-(e7d9dd47)** game. This is separate from Legendary Mayhem: it adds optional cheat
+A standalone Windows trainer for the native **Azeroth Survivors** game, including the tested **0.130.1** hotfix. This is separate from Legendary Mayhem: it adds optional cheat
 controls without Mayhem's automatic waves, events or difficulty scaling.
 
-## Updated in 2.1.3
+## Updated in 2.1.4
 
-Build Check - Removed identity-only launch blocking. Matching hooks allow unverified builds.
-Damage Hooks - Preserve the new Death Recap damage-source arguments.
+Startup - No version or required-hook launch gate; failed hooks are skipped.
+
+Menu - XP controls are under Rewards; movement speed and independent map travel are under Session.
 
 ## Included map-travel fix
 
@@ -40,13 +45,13 @@ The native game uses its ordinary native save; browser saves are not migrated.
 - **Kill Aura:** automatically defeat nearby enemies, with an adjustable radius.
 - **Rapid skills:** shorten supported base, starting and learned skill timers.
   Skills still require valid targets and activation conditions.
-- **XP boost:** multiply incoming match XP. The game's level cap still applies.
 - **Skill area:** multiply native area scaling. Fixed ranges, soft caps and
   target-count limits still apply.
-- **Damage and movement speed:** independent multipliers, with normal values
-  restored when disabled/reset.
+- **Damage multiplier:** increase outgoing damage. Movement speed is configured under Session.
 
 ## Rewards
+
+- **XP boost:** multiply incoming match XP. The game's level cap still applies.
 
 - **Unlimited gold:** maintain the uint32 maximum of **4,294,967,295**. Pickup
   arithmetic saturates instead of wrapping. Remaining gold stays after disabling.
@@ -125,13 +130,10 @@ The reviewed 0.130.0 build was tested in isolated native matches: combat toggles
 stat restoration, real reroll/banish UI actions, chest purchases, Legendary
 rewards, all 12 maps’ guardian definitions, native pickups and Instant Win.
 The new trainer has not completed a full co-op test for every toggle or class.
-It does not increase the game’s lobby limit. The Insert overlay uses the
-existing native window bridge; a fresh interactive visual check was unavailable
-in this release’s final test environment.
+It does not increase the game’s lobby limit. The reorganized Insert overlay was checked locally. The 0.130.1 adapter passed native launch, Godmode, movement-speed and gold checks; earlier adapters remain available.
 
 ## Compatibility, source and updates
 
-Build/version identity no longer blocks launch. If every required hook matches at its configured location, an unknown build launches automatically as UNVERIFIED BUILD using that adapter. Memory layouts and behavior may have changed; crashes or broken features remain possible. Missing/moved hooks and ambiguous adapters still stop launch. This does not automatically port the trainer to future builds. Unlock All still requires a supported save catalog.
 The game updater is disabled during trainer-launched sessions; update the normal
 game separately between sessions and use a matching trainer release.
 

@@ -14,7 +14,7 @@
   const freeR=()=>active()&&(settings().gold||settings().freeRerolls);
   const freeC=()=>active()&&(settings().gold||settings().freeChests);
   const unlimitedB=()=>active()&&settings().unlimitedBanish;
-  const hook=(r,fn)=>Interceptor.attach(base.add(r),function(){const c=this.context;guarded(()=>fn(c));});
+  const hook=(r,fn)=>AZS_HOOKS.attach(base.add(r),function(){const c=this.context;guarded(()=>fn(c));});
   let previous='',owner='',refreshPending=false;
   // Saturating pickup arithmetic remains necessary after max gold is switched off.
   // It changes nothing until a uint32 addition would actually overflow.
@@ -33,7 +33,7 @@
   // Give the native chest affordability check a temporary budget. Its original
   // price still drives the next chest's price; only the deduction is refunded.
   const chestStack=[];
-  Interceptor.attach(base.add(p.chest),{
+  AZS_HOOKS.attach(base.add(p.chest),{
    onEnter(a){guarded(()=>{this.free=freeC();this.r=a[0];if(!this.free)return;
     this.gold=this.r.add(p.goldOffset).readU32();chestStack.push(this);this.r.add(p.goldOffset).writeU32(MAX);
    });},
@@ -47,7 +47,7 @@
   hook(p.banishGate,c=>{if(unlimitedB()&&c.rdi.toUInt32()===0)c.rdi=ptr(1);});
   hook(p.banishStore,c=>{if(unlimitedB()){c.rdi=ptr(c.rsi.add(p.banishOffset).readU32());counts.banishes++;}});
   hook(p.banishUi,c=>{if(unlimitedB())c.r13=ptr(9999);});
-  Interceptor.attach(base.add(p.card),{onEnter(a){guarded(()=>{
+  AZS_HOOKS.attach(base.add(p.card),{onEnter(a){guarded(()=>{
    if(!active()||!settings().legendary||a[2].readU64().toString(16)==='8000000000000004')return;
    a[3]=ptr(4);counts.legendaryCards++;
   });}});

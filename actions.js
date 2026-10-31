@@ -45,12 +45,12 @@
     // Their actual definition is selected at the four native resolution sites;
     // no invalid catalog index is serialized or left in a Run after unloading.
     const recordChoice=(r,index)=>owner===String(r)?foreign.get(index):null;
-    function inline(rva,body){Interceptor.attach(base.add(rva),function(){const c=this.context;guarded(()=>body(c));});}
+    function inline(rva,body){AZS_HOOKS.attach(base.add(rva),function(){const c=this.context;guarded(()=>body(c));});}
     inline(p.guardianSpawnDefinition,c=>{const g=recordChoice(c.rsi,c.rbx.toUInt32());if(g){c.r15=g.pointer;c.r12=ptr(0);c.r14=ptr(marker+g.id);}});
     inline(p.guardianAnnouncementDefinition,c=>{const g=recordChoice(c.rsi,c.rbx.toUInt32());if(g){c.rdi=g.pointer;c.r15=ptr(0);}});
     inline(p.guardianTargetDefinition,c=>{const g=recordChoice(c.rsi,c.r15.toUInt32()/5);if(g){c.rdi=g.pointer;c.rbx=ptr(0);}});
     inline(p.guardianRehealthIndex,c=>{const r=c.rbp.add(0x3a0).readPointer(),g=recordChoice(r,c.rax.toUInt32()/5);if(g)c.rdi=ptr(marker+g.id);});
-    for(const rva of [p.guardianHealth,p.guardianDamage])Interceptor.attach(base.add(rva),{
+    for(const rva of [p.guardianHealth,p.guardianDamage])AZS_HOOKS.attach(base.add(rva),{
       onEnter(args){this.restore=null;const g=guardianById.get(args[1].toUInt32()-marker);if(!g)return;const r=args[0],z=zones[g.zone];this.restore={r,pointer:r.add(F(0x2b8)).readPointer(),length:r.add(F(0x2c0)).readU64()};r.add(F(0x2b8)).writePointer(z.keyPointer);r.add(F(0x2c0)).writeU64(z.keyLength);args[1]=ptr(g.index);},
       onLeave(){if(this.restore){const x=this.restore;x.r.add(F(0x2b8)).writePointer(x.pointer);x.r.add(F(0x2c0)).writeU64(x.length);}}
     });
@@ -66,7 +66,7 @@
       let substitute=false;guarded(()=>{if(!converting&&running(r)&&getSettings().bossEnemies&&getRun()?.equals(r)){prepare(r);substitute=true;if(bossCount(r)>=64){limited++;return;}converting=true;try{summonBoss(r,getSettings().bossId??0);converted++;}finally{converting=false;}}});
       if(!substitute)spawnMob(r,index,pos);
     },'void',['pointer','uint64','pointer']);
-    Interceptor.replace(base.add(profile.functions.mobSpawn),mobReplacement);
+    AZS_HOOKS.replace(base.add(profile.functions.mobSpawn),mobReplacement);
     function queueKills(r,radius){const queue=radius==null?killQueue:auraQueue,v=enemies(r),p0=position(r),seen=new Set(queue);for(let i=0;i<v.n;i++){const e=v.pointer.add(i*profile.enemyStride);if(!alive(e))continue;if(radius!=null){const pos=enemyPosition(r,e);if((pos[0]-p0[0])**2+(pos[1]-p0[1])**2>radius*radius)continue;}const id=e.add(E(0xf0)).readU64().toString();if(!seen.has(id)){queue.push(id);seen.add(id);}}return queue.length;}
     function drainKills(r){if(time(r)<nextKill)return;nextKill=time(r)+.2;let budget=32;while(budget--&&(killQueue.length||auraQueue.length)&&running(r)){const id=(killQueue.length?killQueue:auraQueue).shift(),v=enemies(r);for(let i=0;i<v.n;i++){const e=v.pointer.add(i*profile.enemyStride);if(e.add(E(0xf0)).readU64().toString()===id&&alive(e)){damage(r,uint64(id),1e30,0,0,0,0);kills++;break;}}}}
     function pickup(r,kind,amount=1){if(num(r,profile.rewards.lootLengthOffset)>=500)throw Error('The map already has 500 pickups.');const pos=position(r);pos[0]+=5;pos.forEach((v,i)=>xyz.add(i*4).writeFloat(v));loot(r,kind,amount,xyz);}
