@@ -13,7 +13,7 @@ Unknown game builds use a best-effort bundled layout. This removes startup block
 
 # Azeroth Survivors Trainer — native edition
 
-A standalone Windows trainer for the native **Azeroth Survivors** game, updated for **0.131.0**. This is separate from Legendary Mayhem: it adds optional cheat
+A standalone Windows trainer for the native **Azeroth Survivors** game, updated for **0.139.0**. This is separate from Legendary Mayhem: it adds optional cheat
 controls without Mayhem's automatic waves, events or difficulty scaling.
 
 ## Launch and menu behavior
@@ -93,6 +93,21 @@ Close all upgrade choices before travelling, and wait between transfers.
 Completion rewards retain the original run’s map identity; travelling does not
 award extra map clears. This does not increase the game’s lobby size.
 
+## Party match gear rewards
+
+In **Insert > Collection**, select **Reward current-match gear** while hosting a match.
+The host queues native gear rewards separately for each connected player's class.
+The game delivers and saves the rewards normally; guests do not need the trainer.
+
+- Awards eligible permanent gear for the class and map used by the current run.
+- Uses native reward validation. It does not grant every map's gear or every class's collection.
+- Repeat clicks do not requeue the same actor's rewards in the same match.
+- Return to the starting map before using this after manual map travel.
+- Native collection achievements can unlock when the rewards satisfy their conditions.
+  A Paladin guest receiving five items after owning 20 unlocked **25 Pieces**; both
+  the gear and achievement survived a native restart in testing.
+- Does not force every achievement, false map clears or other classes' completion.
+
 ## Collection unlocks
 
 This separate trainer includes **Unlock collection** publicly. Return to the
@@ -105,7 +120,7 @@ The supported catalog contains 125 achievements, 581 class gear entries,
 21 tabards, eight races and 14 reward appearances. Native collection gates
 and the normal talent-point capacity are granted. Existing equipped choices,
 statistics and talent allocations are preserved. Marks and item-star upgrade
-currency are not filled. Other players' accounts are not unlocked.
+currency are not filled. Other players' accounts are not unlocked. This button edits only your local collection; it is not a lobby reward command.
 
 Backups: `%LOCALAPPDATA%/AzerothSurvivorsTrainerNative/Collection Backups`.
 Use **Open verified backups** to find them. Do not replace a save while the game
@@ -136,7 +151,7 @@ The reviewed 0.130.0 build was tested in isolated native matches: combat toggles
 stat restoration, real reroll/banish UI actions, chest purchases, Legendary
 rewards, all 12 maps’ guardian definitions, native pickups and Instant Win.
 The new trainer has not completed a full co-op test for every toggle or class.
-It does not increase the game’s lobby limit. The reorganized Insert overlay was checked locally. This release targets game 0.131.0. See its release notes for the checks completed on that build; earlier adapters remain available.
+It does not increase the game’s lobby limit. The reorganized Insert overlay was checked locally. This release targets game 0.139.0. See its release notes for the checks completed on that build; earlier adapters remain available.
 
 ## Compatibility, source and updates
 

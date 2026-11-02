@@ -15,9 +15,9 @@
   send({kind:'fault',error:fault});return null;
  }}
  function valid(v){return v&&Object.keys(v).length===Object.keys(schema).length&&Object.entries(schema).every(([k,[d,lo,hi]])=>typeof d==='boolean'?typeof v[k]==='boolean':typeof v[k]==='number'&&Number.isFinite(v[k])&&v[k]>=lo&&v[k]<=hi&&(k!=='bossId'||Number.isInteger(v[k])));}
- const api={profile,base,F,E,getSettings:()=>settings,getRun:()=>run,guarded,notice};
+ const api={profile,base,F,E,getSettings:()=>settings,getRun:()=>run,getGame:()=>game,getTravelStatus:()=>travel.status(),guarded,notice};
  const travel=AZS_MAP_TRAVEL.setup({profile,base,F,getRun:()=>run,getGame:()=>game,notice,externalDamageGuard:true});
- modules={combat:AZS_TRAINER_COMBAT.setup(api),economy:AZS_TRAINER_ECONOMY.setup(api),actions:AZS_TRAINER_ACTIONS.setup(api)};
+ modules={combat:AZS_TRAINER_COMBAT.setup(api),economy:AZS_TRAINER_ECONOMY.setup(api),actions:AZS_TRAINER_ACTIONS.setup(api),matchRewards:AZS_LOBBY_REWARDS.setup(api)};
  function match(){if(!run||run.isNull())return null;
   return {phase:run.add(F(0xca2)).readU8(),worldPhase:run.add(F(0xca3)).readU8(),coop:!!run.add(F(0xc9d)).readU8(),
    clock:run.add(F(0xbf4)).readFloat(),hp:run.add(F(0x508)).readFloat(),maxHp:run.add(F(0x4a0)).readFloat(),
@@ -26,7 +26,7 @@
   results:results.slice(-10),modules:Object.fromEntries(Object.entries(modules).map(([k,m])=>[k,m.status?.()??{}]))};}
  function drain(){
   for(const item of queue.splice(0,4)){
-   let result;try{result=modules.actions.command(item.name,item.args);if(result===false)throw Error('Action is not available in this match.');}
+   let result;try{result=(item.name==='grantMatchGear'?modules.matchRewards:modules.actions).command(item.name,item.args);if(result===false)throw Error('Action is not available in this match.');}
    catch(e){result={ok:false,error:String(e.message||e)};notice(result.error);}
    results.push({id:item.id,name:item.name,result});if(results.length>20)results.shift();
   }

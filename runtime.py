@@ -4,7 +4,7 @@ import ctypes,hashlib,json,os,queue,sys,threading,time
 from ctypes import wintypes
 
 ROOT=Path(getattr(sys,'_MEIPASS',Path(__file__).resolve().parent))
-VERSION='2.1.6'
+VERSION='2.1.7'
 from settings import DEFAULTS, SCHEMA, validate_settings
 
 
@@ -82,7 +82,7 @@ class NativeGame:
                 self.session=self.device.attach(self.pid)
                 self.session.on('detached',self._detached)
                 self.events.put({'kind':'compatible','version':profile['version'],'stamp':profile['stamp'],'verified':not self.unverified})
-                source='globalThis.AZS_SCHEMA='+json.dumps(SCHEMA)+';\n'+'globalThis.AZS_PROFILE='+json.dumps(profile)+';\nglobalThis.AZS_SETTINGS='+json.dumps(settings)+';\n'+'\n'.join((ROOT/name).read_text(encoding='utf-8') for name in ['combat.js','economy.js','actions.js','map_travel.js','resilience.js','trainer.js'])
+                source='globalThis.AZS_SCHEMA='+json.dumps(SCHEMA)+';\n'+'globalThis.AZS_PROFILE='+json.dumps(profile)+';\nglobalThis.AZS_SETTINGS='+json.dumps(settings)+';\n'+'\n'.join((ROOT/name).read_text(encoding='utf-8') for name in ['combat.js','economy.js','actions.js','lobby_rewards.js','map_travel.js','resilience.js','trainer.js'])
                 try:
                     self.agent=self.session.create_script(source,name='AzerothSurvivorsTrainerNative')
                     self.agent.on('message',self._message);self.agent.load()

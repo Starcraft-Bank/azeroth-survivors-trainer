@@ -49,7 +49,7 @@
     inline(p.guardianSpawnDefinition,c=>{const g=recordChoice(c.rsi,c.rbx.toUInt32());if(g){c.r15=g.pointer;c.r12=ptr(0);c.r14=ptr(marker+g.id);}});
     inline(p.guardianAnnouncementDefinition,c=>{const g=recordChoice(c.rsi,c.rbx.toUInt32());if(g){c.rdi=g.pointer;c.r15=ptr(0);}});
     inline(p.guardianTargetDefinition,c=>{const g=recordChoice(c.rsi,c.r15.toUInt32()/5);if(g){c.rdi=g.pointer;c.rbx=ptr(0);}});
-    inline(p.guardianRehealthIndex,c=>{const r=c.rbp.add(0x3a0).readPointer(),g=recordChoice(r,c.rax.toUInt32()/5);if(g)c.rdi=ptr(marker+g.id);});
+    inline(p.guardianRehealthIndex,c=>{const r=c.rbp.add(p.guardianRehealthRunStackOffset??0x3a0).readPointer(),g=recordChoice(r,c.rax.toUInt32()/5);if(g)c.rdi=ptr(marker+g.id);});
     for(const rva of [p.guardianHealth,p.guardianDamage])AZS_HOOKS.attach(base.add(rva),{
       onEnter(args){this.restore=null;const g=guardianById.get(args[1].toUInt32()-marker);if(!g)return;const r=args[0],z=zones[g.zone];this.restore={r,pointer:r.add(F(0x2b8)).readPointer(),length:r.add(F(0x2c0)).readU64()};r.add(F(0x2b8)).writePointer(z.keyPointer);r.add(F(0x2c0)).writeU64(z.keyLength);args[1]=ptr(g.index);},
       onLeave(){if(this.restore){const x=this.restore;x.r.add(F(0x2b8)).writePointer(x.pointer);x.r.add(F(0x2c0)).writeU64(x.length);}}

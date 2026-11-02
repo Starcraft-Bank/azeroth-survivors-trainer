@@ -67,7 +67,12 @@ class Overlay:
   self.guardian_box=self.select(p,'Guardian / rare',self.guardian,[])
   self.action_row(p,[('Spawn selected guardian','selectedGuardian',{})])
   self.note(p,'Manual boss spawns preserve the normal schedule. Spawn next advances it. Guardians keep their native interactions and cannot be duplicated while present.')
-  p=self.pages['Collection'];self.heading(p,'Unlock the collection','A permanent change to your own native account, with a verified backup first.')
+  p=self.pages['Collection'];self.heading(p,'Match gear rewards','Award eligible permanent gear through the game during a match.')
+  self.note(p,'For the host and connected players. Each player receives gear allowed for their own class and match map. This does not unlock every map, every class or all achievements.')
+  self.match_gear_button=ttk.Button(p,text='Reward current-match gear…',command=lambda:self.action('grantMatchGear',{}),state='disabled',style='Gold.TButton');self.match_gear_button.pack(anchor='w',pady=6)
+  self.match_gear_info=tk.StringVar(value='Start a match as host to check reward availability.')
+  ttk.Label(p,textvariable=self.match_gear_info,foreground=MUTED,wraplength=640,justify='left').pack(fill='x',pady=(2,16))
+  self.heading(p,'Unlock your own collection','A permanent change to your own native account, with a verified backup first.')
   self.note(p,'Unlock supported achievements and rewards, all classes’ zone clears, gear entries, Codex discoveries, perks, companions, races, tabards and appearances. Equipped choices, statistics and existing talent allocations are preserved.')
   self.note(p,'This grants the normal talent-point capacity. Native Marks and item-star upgrade currency are not filled. Other players’ accounts are unchanged.')
   box=tk.Frame(p,bg=CARD);box.pack(fill='x',pady=14)
@@ -171,6 +176,7 @@ class Overlay:
    if i<0:return
    name='spawnGuardian';args={'id':self.guardians[i]['id']}
   elif name=='selectedPowerup':name='spawnPowerup';args={'kind':3+self.powerup_box.current()}
+  if name=='grantMatchGear' and not messagebox.askyesno('Award gear to this party?', 'Queue eligible permanent gear for you and the connected players through the game’s reward system. Each guest applies their own class, map and reward limits. These are permanent rewards; this is not a full achievement unlock.\n\nContinue?',parent=self.window):return
   if name in ('instantWin','killAll') and not messagebox.askyesno('Confirm match action','This can finish the current match and award normal progression. Continue?',parent=self.window):return
   try:self.app.action(name,args);self.feedback.set('Action queued for the game.')
   except Exception as e:self.feedback.set(str(e))
@@ -192,6 +198,9 @@ class Overlay:
    else:v.set(f'{m[k]:,}')
   for b in self.action_buttons:b.configure(state='normal' if active and not fault else 'disabled')
   self.unlock_button.configure(state='normal' if not self.app.unlocking and not fault and (m is None or m['phase']==0) else 'disabled')
+  rewards=(item.get('modules') or {}).get('matchRewards') or {}
+  self.match_gear_button.configure(state='normal' if active and not fault and rewards.get('canGrant') else 'disabled')
+  self.match_gear_info.set(rewards.get('reason') or ('Ready to award eligible match gear.' if rewards.get('canGrant') else 'Match gear rewards are unavailable in this state.'))
   if fault:self.feedback.set(fault.splitlines()[0])
   elif item.get('unavailableFeatures'):
    names=list(dict.fromkeys(e.get('feature','Feature') for e in item['unavailableFeatures']))
